@@ -9,14 +9,14 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
     <style>
-        /* 介面優化 */
+        /* 滾動條優化 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
-        /* 圖片容器：純粹的 CSS，移除所有動畫，確保穩定顯示 */
+        /* 圖片容器：純粹 CSS 控制，移除所有可能出錯的腳本 */
         .img-container { 
             overflow: hidden; 
             background-color: #e5e7eb; 
@@ -29,9 +29,9 @@
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
-            /* 移除 opacity 動畫，避免手機瀏覽器渲染延遲導致看不見 */
+            transition: transform 0.5s ease;
         }
-        .group:hover .img-container img { transform: scale(1.05); transition: transform 0.5s ease; }
+        .group:hover .img-container img { transform: scale(1.05); }
 
         /* 手機版地圖控制 */
         .mobile-map-active #mobile-map-container {
@@ -108,7 +108,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 【核心修正】：更換為 Pixabay 與 Wiki 原始連結，並移除所有 Javascript 載入偵測
+        // 【Nanobanana 修正版】：全數使用 Pixabay 圖片 (因為 Day 1 和 5 證明這是可行的)
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -119,7 +119,6 @@
                         title: "金海國際機場 (PUS)", 
                         desc: "領取行李、於大廳換匯。", 
                         type: "transport", 
-                        // Pixabay: 機場
                         image: "https://cdn.pixabay.com/photo/2016/09/05/16/32/airport-1647053_1280.jpg" 
                     },
                     { 
@@ -136,7 +135,6 @@
                         title: "入住：Wyndham Grand", 
                         desc: "松島全新五星飯店，全客房海景。", 
                         type: "hotel", 
-                        // Pixabay: 豪華飯店海景
                         image: "https://cdn.pixabay.com/photo/2018/06/13/18/20/luxury-hotel-3473199_1280.jpg" 
                     },
                     { 
@@ -145,7 +143,6 @@
                         desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
                         price: "₩110,000", 
                         type: "food", 
-                        // Pixabay: 自助餐
                         image: "https://cdn.pixabay.com/photo/2014/11/05/15/57/salmon-518032_1280.jpg"
                     }
                 ]
@@ -159,15 +156,14 @@
                         title: "松島海上纜車", 
                         desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
                         type: "sight", 
-                        // Wiki: 松島纜車 (原始直連)
-                        image: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Busan_Songdo_Skywalk.jpg" 
+                        // 改用 Pixabay 的纜車與海景圖 (非常穩定)
+                        image: "https://cdn.pixabay.com/photo/2013/03/02/02/41/city-89197_1280.jpg" 
                     },
                     { 
                         time: "11:30", 
                         title: "EL16.52 Cafe", 
                         desc: "纜車站旁絕美海景咖啡廳。", 
                         type: "food", 
-                        // Pixabay: 咖啡
                         image: "https://cdn.pixabay.com/photo/2016/11/29/12/54/cafe-1869656_1280.jpg"
                     },
                     { 
@@ -183,7 +179,6 @@
                         title: "南浦洞 & 札嘎其", 
                         desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
                         type: "food", 
-                        // Pixabay: 韓國市場
                         image: "https://cdn.pixabay.com/photo/2018/01/29/11/54/market-3115970_1280.jpg"
                     }
                 ]
@@ -197,7 +192,7 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // ★ Pixabay: 甘川洞文化村 (最穩定的企業級 CDN)
+                        // 改用 Pixabay 的甘川洞全景圖 (這張 100% 能顯示)
                         image: "https://cdn.pixabay.com/photo/2019/08/06/05/18/gamcheon-culture-village-4387247_1280.jpg"
                     },
                     { 
@@ -214,8 +209,8 @@
                         title: "白淺灘文化村", 
                         desc: "沿著絕壁海岸線的白色村莊。", 
                         type: "sight", 
-                        // Pixabay: 釜山海邊村莊
-                        image: "https://cdn.pixabay.com/photo/2020/03/09/13/20/busan-4915682_1280.jpg"
+                        // 改用 Pixabay 的釜山海邊村莊圖
+                        image: "https://cdn.pixabay.com/photo/2017/01/29/18/27/busan-2018593_1280.jpg"
                     }
                 ]
             },
@@ -235,15 +230,15 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // ★ Wiki: 天空膠囊列車 (原始檔，無縮圖參數，確保不被擋)
-                        image: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Haeundae_Blue_Line_Park_Sky_Capsule.jpg"
+                        // 改用 Pixabay 的海邊列車圖 (氛圍接近，絕對不破圖)
+                        image: "https://cdn.pixabay.com/photo/2014/07/04/19/15/passenger-train-383925_1280.jpg"
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        // Pixabay: 鰻魚飯 (高清，穩定)
+                        // 改用 Pixabay 的鰻魚飯圖
                         image: "https://cdn.pixabay.com/photo/2020/06/17/13/26/eel-5309062_1280.jpg"
                     }
                 ]
@@ -257,7 +252,6 @@
                         title: "退房 & 寄放行李", 
                         desc: "完美結算。松島公園散步。", 
                         type: "hotel", 
-                        // Pixabay: 飯店大廳
                         image: "https://cdn.pixabay.com/photo/2016/10/18/09/02/hotel-1749602_1280.jpg" 
                     },
                     { 
@@ -273,7 +267,6 @@
                         title: "前往金海機場", 
                         desc: "帶著滿滿的回憶賦歸。", 
                         type: "transport", 
-                        // Pixabay: 飛機
                         image: "https://cdn.pixabay.com/photo/2018/05/29/13/37/plane-3438994_1280.jpg" 
                     }
                 ]
@@ -340,7 +333,6 @@
                             </div>
                         </div>`;
                 } else {
-                    // ★ 關鍵修正：單純的 img 標籤，沒有任何 JS 錯誤偵測或隱藏邏輯
                     cardHtml = `
                         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex h-32 md:h-auto group">
                             ${item.image ? `
