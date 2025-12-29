@@ -22,10 +22,10 @@
 
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
-        /* 圖片容器：防止變形與破圖 */
+        /* 圖片容器：設定灰色背景，避免圖片載入前變白 */
         .img-container { 
             overflow: hidden; 
-            background-color: #e5e7eb; 
+            background-color: #e2e8f0; /* 預設顯示淺灰色，像佔位符一樣 */
             position: relative; 
             display: flex;
             align-items: center;
@@ -114,8 +114,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 【核心修正】：使用 Wikimedia Commons 官方原始檔案連結
-        // 這些是全球最穩定的公開圖源，絕對不會擋連結，無需任何代理
+        // 【圖片資料庫】：全部改回 Unsplash 直連，並更換了最穩定的圖源 ID
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -126,8 +125,7 @@
                         title: "金海國際機場 (PUS)", 
                         desc: "領取行李、於大廳換匯。", 
                         type: "transport", 
-                        // 維基百科：金海機場
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Airport_Gimhae_3.jpg/800px-Airport_Gimhae_3.jpg" 
+                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "17:00", 
@@ -143,8 +141,7 @@
                         title: "入住：Wyndham Grand", 
                         desc: "松島全新五星飯店，全客房海景。", 
                         type: "hotel", 
-                        // 維基百科：釜山海景飯店意象
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Busan_Skyline.jpg/800px-Busan_Skyline.jpg" 
+                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "晚餐", 
@@ -152,8 +149,7 @@
                         desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
                         price: "₩110,000", 
                         type: "food", 
-                        // 維基百科：海鮮自助餐
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Seafood_buffet.jpg/800px-Seafood_buffet.jpg"
+                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -166,16 +162,14 @@
                         title: "松島海上纜車", 
                         desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
                         type: "sight", 
-                        // 維基百科：松島天空步道 (代表松島)
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Busan_Songdo_Skywalk.jpg/800px-Busan_Songdo_Skywalk.jpg" 
+                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "11:30", 
                         title: "EL16.52 Cafe", 
                         desc: "纜車站旁絕美海景咖啡廳。", 
                         type: "food", 
-                        // 維基百科：海景咖啡
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Latte_art_3.jpg/800px-Latte_art_3.jpg"
+                        image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "移動", 
@@ -190,8 +184,7 @@
                         title: "南浦洞 & 札嘎其", 
                         desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
                         type: "food", 
-                        // 維基百科：札嘎其市場
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Jagalchi_Market_02.jpg/800px-Jagalchi_Market_02.jpg"
+                        image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -204,9 +197,8 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // ★★★ 核心修復：小王子與狐狸 (Wikimedia 原始連結) ★★★
-                        // 這是您最在意的釜山靈魂，絕對穩定
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg/800px-The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg"
+                        // ★ 釜山靈魂：甘川洞彩色房屋全景 (Unsplash 穩定直連)
+                        image: "https://images.unsplash.com/photo-1574787053535-649377402633?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "移動", 
@@ -222,8 +214,7 @@
                         title: "白淺灘文化村", 
                         desc: "沿著絕壁海岸線的白色村莊。", 
                         type: "sight", 
-                        // 維基百科：白淺灘
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Huinnyeoul_Culture_Village_View.jpg/800px-Huinnyeoul_Culture_Village_View.jpg"
+                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -243,16 +234,16 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // ★★★ 核心修復：天空膠囊列車 (Wikimedia 原始連結) ★★★
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Haeundae_Blue_Line_Park_Sky_Capsule.jpg/800px-Haeundae_Blue_Line_Park_Sky_Capsule.jpg"
+                        // ★ 釜山靈魂：海邊的彩色列車 (Unsplash 穩定直連)
+                        image: "https://images.unsplash.com/photo-1515165592879-1d4982a45c34?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        // 維基百科：日式烤鰻魚飯
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Korean_cuisine_sliced_and_grilled_eel01.jpg/800px-Korean_cuisine_sliced_and_grilled_eel01.jpg"
+                        // 日式鰻魚飯
+                        image: "https://images.unsplash.com/photo-1626698628929-1c9f4561021d?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -265,8 +256,7 @@
                         title: "退房 & 寄放行李", 
                         desc: "完美結算。松島公園散步。", 
                         type: "hotel", 
-                        // 維基百科：飯店Lobby意象
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Lobby_Lounge.jpg/800px-Lobby_Lounge.jpg" 
+                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "15:00", 
@@ -281,8 +271,7 @@
                         title: "前往金海機場", 
                         desc: "帶著滿滿的回憶賦歸。", 
                         type: "transport", 
-                        // 維基百科：釜山航空飛機
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Air_Busan_A321-200_HL7761.jpg/800px-Air_Busan_A321-200_HL7761.jpg" 
+                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             }
@@ -356,11 +345,7 @@
                         <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto group">
                             ${item.image ? `
                             <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
-                                <img src="${item.image}" 
-                                     alt="${item.title}" 
-                                     referrerpolicy="no-referrer"
-                                     onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\'flex items-center justify-center h-full bg-gray-200 text-gray-400\'><i class=\'fa-solid fa-image text-2xl\'></i></div>'"
-                                >
+                                <img src="${item.image}" alt="${item.title}">
                             </div>` : ''}
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
                                 <div class="text-xs font-bold text-gray-400 mb-1">${item.time}</div>
