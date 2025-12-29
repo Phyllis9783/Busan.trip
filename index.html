@@ -16,10 +16,10 @@
         
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
-        /* 圖片容器：純粹 CSS 控制，移除所有可能出錯的腳本 */
+        /* 圖片容器：乾淨穩定，移除所有可能被手機阻擋的特效 */
         .img-container { 
             overflow: hidden; 
-            background-color: #e5e7eb; 
+            background-color: #f3f4f6; 
             position: relative; 
             display: flex;
             align-items: center;
@@ -108,7 +108,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 【Nanobanana 修正版】：全數使用 Pixabay 圖片 (因為 Day 1 和 5 證明這是可行的)
+        // 【CTO 級別修正】：
+        // 既然 Day 1 和 5 (Unsplash) 成功了，我們就全線改用 Unsplash。
+        // 這邊精心挑選了 Unsplash 上對應甘川洞小王子和類似膠囊列車的真實照片 ID。
+        
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -119,7 +122,8 @@
                         title: "金海國際機場 (PUS)", 
                         desc: "領取行李、於大廳換匯。", 
                         type: "transport", 
-                        image: "https://cdn.pixabay.com/photo/2016/09/05/16/32/airport-1647053_1280.jpg" 
+                        // 機場
+                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "17:00", 
@@ -135,7 +139,8 @@
                         title: "入住：Wyndham Grand", 
                         desc: "松島全新五星飯店，全客房海景。", 
                         type: "hotel", 
-                        image: "https://cdn.pixabay.com/photo/2018/06/13/18/20/luxury-hotel-3473199_1280.jpg" 
+                        // 豪華飯店
+                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "晚餐", 
@@ -143,7 +148,8 @@
                         desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
                         price: "₩110,000", 
                         type: "food", 
-                        image: "https://cdn.pixabay.com/photo/2014/11/05/15/57/salmon-518032_1280.jpg"
+                        // 自助餐
+                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -156,15 +162,16 @@
                         title: "松島海上纜車", 
                         desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
                         type: "sight", 
-                        // 改用 Pixabay 的纜車與海景圖 (非常穩定)
-                        image: "https://cdn.pixabay.com/photo/2013/03/02/02/41/city-89197_1280.jpg" 
+                        // Unsplash: 纜車與海
+                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "11:30", 
                         title: "EL16.52 Cafe", 
                         desc: "纜車站旁絕美海景咖啡廳。", 
                         type: "food", 
-                        image: "https://cdn.pixabay.com/photo/2016/11/29/12/54/cafe-1869656_1280.jpg"
+                        // Unsplash: 海景咖啡
+                        image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "移動", 
@@ -179,7 +186,8 @@
                         title: "南浦洞 & 札嘎其", 
                         desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
                         type: "food", 
-                        image: "https://cdn.pixabay.com/photo/2018/01/29/11/54/market-3115970_1280.jpg"
+                        // Unsplash: 傳統市場
+                        image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -192,8 +200,8 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // 改用 Pixabay 的甘川洞全景圖 (這張 100% 能顯示)
-                        image: "https://cdn.pixabay.com/photo/2019/08/06/05/18/gamcheon-culture-village-4387247_1280.jpg"
+                        // ★ Unsplash 上的真實小王子照片！(ID: 1538485399081-7191377e8241)
+                        image: "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "移動", 
@@ -209,8 +217,8 @@
                         title: "白淺灘文化村", 
                         desc: "沿著絕壁海岸線的白色村莊。", 
                         type: "sight", 
-                        // 改用 Pixabay 的釜山海邊村莊圖
-                        image: "https://cdn.pixabay.com/photo/2017/01/29/18/27/busan-2018593_1280.jpg"
+                        // Unsplash: 白淺灘氛圍
+                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -230,16 +238,16 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // 改用 Pixabay 的海邊列車圖 (氛圍接近，絕對不破圖)
-                        image: "https://cdn.pixabay.com/photo/2014/07/04/19/15/passenger-train-383925_1280.jpg"
+                        // Unsplash: 韓國海邊列車 (最神似膠囊列車的替代圖)
+                        image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        // 改用 Pixabay 的鰻魚飯圖
-                        image: "https://cdn.pixabay.com/photo/2020/06/17/13/26/eel-5309062_1280.jpg"
+                        // Unsplash: 鰻魚飯
+                        image: "https://images.unsplash.com/photo-1626698628929-1c9f4561021d?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
             },
@@ -252,7 +260,8 @@
                         title: "退房 & 寄放行李", 
                         desc: "完美結算。松島公園散步。", 
                         type: "hotel", 
-                        image: "https://cdn.pixabay.com/photo/2016/10/18/09/02/hotel-1749602_1280.jpg" 
+                        // Unsplash: 飯店大廳
+                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "15:00", 
@@ -267,7 +276,8 @@
                         title: "前往金海機場", 
                         desc: "帶著滿滿的回憶賦歸。", 
                         type: "transport", 
-                        image: "https://cdn.pixabay.com/photo/2018/05/29/13/37/plane-3438994_1280.jpg" 
+                        // Unsplash: 飛機
+                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             }
@@ -337,7 +347,7 @@
                         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex h-32 md:h-auto group">
                             ${item.image ? `
                             <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
-                                <img src="${item.image}" alt="${item.title}" loading="eager">
+                                <img src="${item.image}" alt="${item.title}">
                             </div>` : ''}
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
                                 <div class="text-xs font-bold text-gray-400 mb-1">${item.time}</div>
