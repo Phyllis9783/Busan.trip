@@ -23,8 +23,8 @@
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
         /* 圖片容器：放大效果 */
-        .img-container { overflow: hidden; background-color: #f3f4f6; }
-        .img-container img { transition: transform 0.6s ease; }
+        .img-container { overflow: hidden; background-color: #e5e7eb; }
+        .img-container img { transition: transform 0.6s ease; width: 100%; height: 100%; object-fit: cover; }
         .group:hover .img-container img { transform: scale(1.1); }
 
         /* 手機版地圖控制 */
@@ -102,9 +102,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 備用圖：僅在圖片真的失效時才顯示，避免空白
-        const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
-
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -115,8 +112,8 @@
                         title: "金海國際機場 (PUS)", 
                         desc: "領取行李、於大廳換匯。", 
                         type: "transport", 
-                        // 機場行李意象
-                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" 
+                        // 機場與行李 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "17:00", 
@@ -132,8 +129,8 @@
                         title: "入住：Wyndham Grand", 
                         desc: "松島全新五星飯店，全客房海景。", 
                         type: "hotel", 
-                        // 豪華海景房/飯店外觀
-                        image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" 
+                        // 豪華海景飯店 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "晚餐", 
@@ -141,8 +138,8 @@
                         desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
                         price: "₩110,000", 
                         type: "food", 
-                        // 高級海鮮/自助餐盤
-                        image: "https://images.unsplash.com/photo-1529312266912-b33cf6227e2f?auto=format&fit=crop&w=800&q=80" 
+                        // 自助餐美食 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             },
@@ -155,16 +152,16 @@
                         title: "松島海上纜車", 
                         desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
                         type: "sight", 
-                        // 【特色圖】松島海上纜車 (跨海纜車)
-                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
+                        // 纜車風景 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "11:30", 
                         title: "EL16.52 Cafe", 
                         desc: "纜車站旁絕美海景咖啡廳。", 
                         type: "food", 
-                        // 海景咖啡廳內部/拿鐵
-                        image: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=800&q=80" 
+                        // 海景咖啡 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "移動", 
@@ -179,8 +176,8 @@
                         title: "南浦洞 & 札嘎其", 
                         desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
                         type: "food", 
-                        // 韓國傳統市場/海鮮市場
-                        image: "https://images.unsplash.com/photo-1627993389028-2f87a82f349c?auto=format&fit=crop&w=800&q=80" 
+                        // 韓國市場小吃 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             },
@@ -193,8 +190,8 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // 【特色圖】甘川洞經典彩色山坡房屋
-                        image: "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80" 
+                        // 甘川洞彩色房子 (經典) - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1596417770176-d39b03ae2803?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "移動", 
@@ -210,8 +207,8 @@
                         title: "白淺灘文化村", 
                         desc: "沿著絕壁海岸線的白色村莊。", 
                         type: "sight", 
-                        // 白淺灘/海邊白色圍牆
-                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80" 
+                        // 海邊白色村莊 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             },
@@ -231,16 +228,16 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // 【特色圖】彩色膠囊列車 (Blue Line Park)
-                        image: "https://images.unsplash.com/photo-1695642718302-0c9502941c2d?auto=format&fit=crop&w=800&q=80" 
+                        // 海邊彩色列車意象 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        // 鰻魚飯/日式蓋飯
-                        image: "https://images.unsplash.com/photo-1580442151529-343f2f6e0e27?auto=format&fit=crop&w=800&q=80" 
+                        // 日式鰻魚飯 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1606850780554-b55ea2ce98e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             },
@@ -253,8 +250,8 @@
                         title: "退房 & 寄放行李", 
                         desc: "完美結算。松島公園散步。", 
                         type: "hotel", 
-                        // 飯店大廳/Check out意象
-                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" 
+                        // 飯店大廳 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     },
                     { 
                         time: "15:00", 
@@ -269,8 +266,8 @@
                         title: "前往金海機場", 
                         desc: "帶著滿滿的回憶賦歸。", 
                         type: "transport", 
-                        // 飛機窗外晚霞/賦歸
-                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
+                        // 飛機與天空 - 穩定圖源
+                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     }
                 ]
             }
@@ -352,9 +349,6 @@
                             <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
                                 <img src="${item.image}" 
                                      alt="${item.title}" 
-                                     class="absolute inset-0 w-full h-full object-cover"
-                                     loading="lazy"
-                                     onerror="this.onerror=null; this.src='${FALLBACK_IMAGE}';" 
                                 >
                             </div>` : ''}
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
