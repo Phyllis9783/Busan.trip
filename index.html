@@ -9,36 +9,30 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
     <style>
-        /* 滾動條優化 */
+        /* 介面優化 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .fade-in { animation: fadeIn 0.8s ease-out; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
-        /* 圖片容器：設定灰色背景，避免圖片載入前變白 */
+        /* 圖片容器：純粹的 CSS，移除所有動畫，確保穩定顯示 */
         .img-container { 
             overflow: hidden; 
-            background-color: #e2e8f0; /* 預設顯示淺灰色，像佔位符一樣 */
+            background-color: #e5e7eb; 
             position: relative; 
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .img-container img { 
-            transition: transform 0.6s ease; 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
+            /* 移除 opacity 動畫，避免手機瀏覽器渲染延遲導致看不見 */
         }
-        .group:hover .img-container img { transform: scale(1.1); }
-        
+        .group:hover .img-container img { transform: scale(1.05); transition: transform 0.5s ease; }
+
         /* 手機版地圖控制 */
         .mobile-map-active #mobile-map-container {
             display: block !important;
@@ -114,7 +108,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 【圖片資料庫】：全部改回 Unsplash 直連，並更換了最穩定的圖源 ID
+        // 【核心修正】：更換為 Pixabay 與 Wiki 原始連結，並移除所有 Javascript 載入偵測
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -125,7 +119,8 @@
                         title: "金海國際機場 (PUS)", 
                         desc: "領取行李、於大廳換匯。", 
                         type: "transport", 
-                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" 
+                        // Pixabay: 機場
+                        image: "https://cdn.pixabay.com/photo/2016/09/05/16/32/airport-1647053_1280.jpg" 
                     },
                     { 
                         time: "17:00", 
@@ -141,7 +136,8 @@
                         title: "入住：Wyndham Grand", 
                         desc: "松島全新五星飯店，全客房海景。", 
                         type: "hotel", 
-                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" 
+                        // Pixabay: 豪華飯店海景
+                        image: "https://cdn.pixabay.com/photo/2018/06/13/18/20/luxury-hotel-3473199_1280.jpg" 
                     },
                     { 
                         time: "晚餐", 
@@ -149,7 +145,8 @@
                         desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
                         price: "₩110,000", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80"
+                        // Pixabay: 自助餐
+                        image: "https://cdn.pixabay.com/photo/2014/11/05/15/57/salmon-518032_1280.jpg"
                     }
                 ]
             },
@@ -162,14 +159,16 @@
                         title: "松島海上纜車", 
                         desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
                         type: "sight", 
-                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
+                        // Wiki: 松島纜車 (原始直連)
+                        image: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Busan_Songdo_Skywalk.jpg" 
                     },
                     { 
                         time: "11:30", 
                         title: "EL16.52 Cafe", 
                         desc: "纜車站旁絕美海景咖啡廳。", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80"
+                        // Pixabay: 咖啡
+                        image: "https://cdn.pixabay.com/photo/2016/11/29/12/54/cafe-1869656_1280.jpg"
                     },
                     { 
                         time: "移動", 
@@ -184,7 +183,8 @@
                         title: "南浦洞 & 札嘎其", 
                         desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?auto=format&fit=crop&w=800&q=80"
+                        // Pixabay: 韓國市場
+                        image: "https://cdn.pixabay.com/photo/2018/01/29/11/54/market-3115970_1280.jpg"
                     }
                 ]
             },
@@ -197,8 +197,8 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // ★ 釜山靈魂：甘川洞彩色房屋全景 (Unsplash 穩定直連)
-                        image: "https://images.unsplash.com/photo-1574787053535-649377402633?auto=format&fit=crop&w=800&q=80"
+                        // ★ Pixabay: 甘川洞文化村 (最穩定的企業級 CDN)
+                        image: "https://cdn.pixabay.com/photo/2019/08/06/05/18/gamcheon-culture-village-4387247_1280.jpg"
                     },
                     { 
                         time: "移動", 
@@ -214,7 +214,8 @@
                         title: "白淺灘文化村", 
                         desc: "沿著絕壁海岸線的白色村莊。", 
                         type: "sight", 
-                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80"
+                        // Pixabay: 釜山海邊村莊
+                        image: "https://cdn.pixabay.com/photo/2020/03/09/13/20/busan-4915682_1280.jpg"
                     }
                 ]
             },
@@ -234,16 +235,16 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // ★ 釜山靈魂：海邊的彩色列車 (Unsplash 穩定直連)
-                        image: "https://images.unsplash.com/photo-1515165592879-1d4982a45c34?auto=format&fit=crop&w=800&q=80"
+                        // ★ Wiki: 天空膠囊列車 (原始檔，無縮圖參數，確保不被擋)
+                        image: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Haeundae_Blue_Line_Park_Sky_Capsule.jpg"
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        // 日式鰻魚飯
-                        image: "https://images.unsplash.com/photo-1626698628929-1c9f4561021d?auto=format&fit=crop&w=800&q=80"
+                        // Pixabay: 鰻魚飯 (高清，穩定)
+                        image: "https://cdn.pixabay.com/photo/2020/06/17/13/26/eel-5309062_1280.jpg"
                     }
                 ]
             },
@@ -256,7 +257,8 @@
                         title: "退房 & 寄放行李", 
                         desc: "完美結算。松島公園散步。", 
                         type: "hotel", 
-                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" 
+                        // Pixabay: 飯店大廳
+                        image: "https://cdn.pixabay.com/photo/2016/10/18/09/02/hotel-1749602_1280.jpg" 
                     },
                     { 
                         time: "15:00", 
@@ -271,21 +273,19 @@
                         title: "前往金海機場", 
                         desc: "帶著滿滿的回憶賦歸。", 
                         type: "transport", 
-                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
+                        // Pixabay: 飛機
+                        image: "https://cdn.pixabay.com/photo/2018/05/29/13/37/plane-3438994_1280.jpg" 
                     }
                 ]
             }
         };
 
-        // 地圖初始化
         let map;
         try {
             map = L.map('map', { zoomControl: false }).setView([35.1000, 129.0300], 12);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '', maxZoom: 19
             }).addTo(map);
-            
-            // 標記飯店
             const hotelIcon = L.divIcon({
                 className: 'custom-div-icon',
                 html: "<div style='background-color:#4f46e5; width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow:0 0 0 4px rgba(79, 70, 229, 0.4);'></div>",
@@ -303,7 +303,6 @@
             });
             document.getElementById(`tab-${day}`).classList.replace('border-transparent', 'border-indigo-500');
             document.getElementById(`tab-${day}`).classList.replace('text-gray-500', 'text-indigo-600');
-            
             document.getElementById('day-summary').textContent = tripData[day].summary;
 
             const container = document.getElementById('itinerary-content');
@@ -313,7 +312,7 @@
                 let cardHtml = '';
                 if (item.type === 'comparison') {
                     cardHtml = `
-                        <div class="bg-slate-800 text-white rounded-xl p-4 shadow-lg fade-in border border-slate-700">
+                        <div class="bg-slate-800 text-white rounded-xl p-4 shadow-lg border border-slate-700">
                             <h3 class="font-bold text-base mb-3 flex items-center"><i class="fa-solid fa-route text-yellow-400 mr-2"></i> ${item.title}</h3>
                             <div class="space-y-3">
                                 ${item.options.map(opt => `
@@ -329,7 +328,7 @@
                         </div>`;
                 } else if (item.type === 'car' || (item.type === 'transport' && item.icon) || (item.type === 'food' && item.icon)) {
                     cardHtml = `
-                        <div class="bg-white rounded-xl p-4 shadow-md flex items-start gap-3 fade-in border-l-4 border-slate-600">
+                        <div class="bg-white rounded-xl p-4 shadow-md flex items-start gap-3 border-l-4 border-slate-600">
                             <div class="flex-shrink-0 mt-1"><i class="fa-solid ${item.icon || 'fa-car'} text-lg text-slate-600"></i></div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
@@ -341,11 +340,12 @@
                             </div>
                         </div>`;
                 } else {
+                    // ★ 關鍵修正：單純的 img 標籤，沒有任何 JS 錯誤偵測或隱藏邏輯
                     cardHtml = `
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto group">
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex h-32 md:h-auto group">
                             ${item.image ? `
                             <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
-                                <img src="${item.image}" alt="${item.title}">
+                                <img src="${item.image}" alt="${item.title}" loading="eager">
                             </div>` : ''}
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
                                 <div class="text-xs font-bold text-gray-400 mb-1">${item.time}</div>
