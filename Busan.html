@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>釜山溫德姆奢華舒壓之旅 - 完整版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        /* 滾動條美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 地圖容器 */
+        #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
+        
+        /* 自定義地圖標記樣式 */
+        .custom-div-icon {
+            background: transparent;
+            border: none;
+        }
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50% 50% 50% 0;
+            background: #4f46e5;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -15px 0 0 -15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .marker-pin::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            margin: 8px 0 0 8px;
+            background: #fff;
+            position: absolute;
+            border-radius: 50%;
+        }
+        .marker-label {
+            position: absolute;
+            top: -20px;
+            left: -50px;
+            width: 100px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+            text-shadow: 1px 1px 0 #fff;
+            pointer-events: none;
+        }
+        
+        /* 隱藏 Leaflet 預設的 attribution 以保持介面簡潔 (可選) */
+        .leaflet-control-attribution { font-size: 10px; opacity: 0.7; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col overflow-hidden text-slate-800">
+
+    <header class="bg-white shadow-sm z-20 flex-none relative">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">釜山溫德姆奢華舒壓之旅</h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        <i class="fa-regular fa-calendar border border-slate-300 rounded px-1 mr-1"></i> 5天4夜 
+                        <span class="mx-2">|</span> 
+                        <i class="fa-solid fa-hotel text-indigo-600"></i> 松島 Wyndham Grand
+                    </p>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium transition shadow-md flex items-center">
+                    <i class="fa-solid fa-circle-question mr-1"></i> 為什麼建議這條行程
+                </button>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4">
+                <nav class="flex space-x-8 overflow-x-auto no-scrollbar" aria-label="Tabs">
+                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1 抵達</button>
+                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2 松島與南浦</button>
+                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3 文化與海景</button>
+                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4 海雲臺</button>
+                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5 賦歸</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <div class="w-full md:w-[480px] lg:w-[550px] overflow-y-auto bg-gray-50 p-4 pb-20 z-10 shadow-xl flex-none scroll-smooth">
+            
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-quote-left text-indigo-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-indigo-900 font-medium leading-relaxed" id="day-summary">
+                            抵達釜山，專車接送至飯店，享受舒適的開始。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="itinerary-content" class="space-y-6"></div>
+            <div class="h-10"></div>
+        </div>
+
+        <div class="hidden md:block flex-1 relative">
+            <div id="map"></div>
+            
+            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-lg w-48 z-[1000] border border-gray-200">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">圖標說明</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center"><span class="w-6 h-6 rounded bg-indigo-600 text-white flex items-center justify-center text-xs font-bold mr-2"><i class="fa-solid fa-h"></i></span> 溫德姆飯店</div>
+                    <div class="flex items-center"><span class="w-6 h-6 rounded bg-blue-500 text-white flex items-center justify-center text-xs font-bold mr-2">1</span> 觀光景點</div>
+                    <div class="flex items-center"><span class="w-6 h-6 rounded bg-orange-500 text-white flex items-center justify-center text-xs font-bold mr-2"><i class="fa-solid fa-utensils"></i></span> 推薦餐廳</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="md:hidden absolute bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-2xl z-50 hover:bg-indigo-700 transition">
+            <i class="fa-solid fa-map-location-dot text-xl"></i>
+        </button>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // --- 1. 資料設定 ---
+        const tripData = {
+            1: {
+                summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
+                center: [35.1000, 128.9800], // 機場到松島中間
+                zoom: 11,
+                items: [
+                    {
+                        time: "16:00",
+                        title: "金海國際機場 (PUS)",
+                        desc: "領取行李、於大廳換匯。",
+                        type: "transport",
+                        image: "https://images.unsplash.com/photo-1570214476695-ca264c17379d?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "17:00",
+                        title: "機場 ➔ Wyndham Grand",
+                        desc: "推薦交通：舒適專車接送。耗時約 40-50 分鐘。",
+                        price: "₩25,000",
+                        note: "省去提行李轉乘地鐵的疲憊。",
+                        type: "car",
+                        icon: "fa-car"
+                    },
+                    {
+                        time: "17:30",
+                        title: "入住：Wyndham Grand Busan",
+                        desc: "松島全新五星飯店，全客房海景。稍微整理行李。",
+                        type: "hotel",
+                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "晚餐",
+                        title: "The Bridge (飯店4F)",
+                        desc: "頂級海鮮自助餐，不用出門最輕鬆。",
+                        price: "₩110,000 / 人",
+                        type: "food",
+                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80"
+                    }
+                ]
+            },
+            2: {
+                summary: "上午步行漫遊松島，下午前往南浦洞逛街，感受釜山熱鬧氣息。",
+                center: [35.0850, 129.0250], // 松島與南浦洞
+                zoom: 13,
+                items: [
+                    {
+                        time: "10:00",
+                        title: "松島海上纜車 & 龍宮雲橋",
+                        desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰腳下大海。",
+                        type: "sight",
+                        image: "https://images.unsplash.com/photo-1534234828569-16d22b0f4496?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "11:30",
+                        title: "EL16.52 Cafe",
+                        desc: "纜車站旁絕美海景咖啡廳。適合休息拍照。",
+                        type: "food",
+                        image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "移動",
+                        title: "松島 ➔ 南浦洞 (札嘎其)",
+                        desc: "短程移動，計程車最方便。",
+                        price: "₩7,000 (約15分)",
+                        type: "car",
+                        icon: "fa-taxi"
+                    },
+                    {
+                        time: "13:30",
+                        title: "南浦洞 & 札嘎其市場",
+                        desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場吃糖餅。",
+                        type: "food",
+                        image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?auto=format&fit=crop&w=600&q=80"
+                    }
+                ]
+            },
+            3: {
+                summary: "今日前往山坡景點，計程車是保留體力的必要投資。",
+                center: [35.0900, 129.0300], // 甘川附近
+                zoom: 13,
+                items: [
+                    {
+                        time: "10:00",
+                        title: "甘川洞文化村",
+                        desc: "釜山的馬丘比丘。尋找小王子雕像。",
+                        type: "sight",
+                        image: "https://images.unsplash.com/photo-1596417770176-d39b03ae2803?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "移動",
+                        title: "飯店 ➔ 甘川洞文化村",
+                        desc: "強烈建議計程車直達入口，省去爬坡。",
+                        price: "₩6,500",
+                        note: "公車需轉乘且大排長龍，不建議。",
+                        type: "car",
+                        icon: "fa-taxi"
+                    },
+                    {
+                        time: "14:00",
+                        title: "白淺灘文化村 (Huinnyeoul)",
+                        desc: "沿著絕壁海岸線的白色村莊，多部電影拍攝地。",
+                        type: "sight",
+                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=600&q=80"
+                    }
+                ]
+            },
+            4: {
+                summary: "今日距離最遠，前往海雲臺。提供舒適與省錢兩種方案。",
+                center: [35.1500, 129.1300], // 海雲臺區域
+                zoom: 12,
+                items: [
+                    {
+                        time: "移動",
+                        title: "長途移動：飯店 ➔ 海雲臺",
+                        desc: "跨區移動，請依預算選擇。",
+                        type: "comparison", // 特殊類型：比較方案
+                        options: [
+                            {
+                                name: "方案A: 舒壓推薦",
+                                tag: "最舒適",
+                                price: "₩28,000",
+                                details: "計程車直達，約 45-50 分鐘。無須搬運行李，舒適抵達。",
+                                icon: "fa-taxi",
+                                color: "text-indigo-600"
+                            },
+                            {
+                                name: "方案B: 省錢方案",
+                                tag: "高CP值",
+                                price: "~₩6,000 /人",
+                                details: `<div class="mt-2 space-y-2 text-sm text-gray-600">
+                                            <div class="flex items-center"><i class="fa-solid fa-taxi w-5 text-center mr-1"></i> 計程車至南浦站</div>
+                                            <div class="flex items-center"><i class="fa-solid fa-train-subway w-5 text-center mr-1"></i> 地鐵1號線 (往西面)</div>
+                                            <div class="flex items-center"><i class="fa-solid fa-arrow-right-arrow-left w-5 text-center mr-1 text-orange-500"></i> 西面站轉乘 2號線</div>
+                                            <div class="flex items-center"><i class="fa-solid fa-location-dot w-5 text-center mr-1"></i> 中洞站下車 ➔ 步行</div>
+                                            <div class="text-xs text-orange-600 mt-1 bg-orange-50 p-2 rounded"><i class="fa-solid fa-triangle-exclamation"></i> 耗時約 90 分鐘，需轉乘2次。</div>
+                                          </div>`,
+                                icon: "fa-coins",
+                                color: "text-green-600"
+                            }
+                        ]
+                    },
+                    {
+                        time: "11:00",
+                        title: "天空膠囊列車 (Sky Capsule)",
+                        desc: "務必提前2週官網預約 (尾浦出發)。",
+                        type: "sight",
+                        image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "午餐",
+                        title: "海木 (Haemok)",
+                        desc: "海雲臺必吃名古屋鰻魚飯，建議現場先抽號碼牌。",
+                        type: "food",
+                        image: "https://images.unsplash.com/photo-1560159752-d6d7c4b0d355?auto=format&fit=crop&w=600&q=80"
+                    }
+                ]
+            },
+            5: {
+                summary: "享受飯店設施到最後一刻。退房後行李寄放櫃台。",
+                center: [35.0760, 129.0170], // 回到松島
+                zoom: 14,
+                items: [
+                    {
+                        time: "11:00",
+                        title: "退房 & 寄放行李",
+                        desc: "完美結算。松島公園散步。",
+                        type: "hotel",
+                        image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80"
+                    },
+                    {
+                        time: "15:00",
+                        title: "最後的海景咖啡",
+                        desc: "飯店1F 或附近的咖啡廳，整理心情。",
+                        price: "₩25,000",
+                        type: "food",
+                        icon: "fa-mug-hot"
+                    },
+                    {
+                        time: "16:30",
+                        title: "前往金海機場",
+                        desc: "帶著滿滿的回憶賦歸。",
+                        type: "transport",
+                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80"
+                    }
+                ]
+            }
+        };
+
+        // --- 2. 地圖初始化 ---
+        // 釜山中心點
+        const map = L.map('map', { zoomControl: false }).setView([35.1000, 129.0300], 12);
+        
+        // 使用 OpenStreetMap 圖層
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // 定義地點座標 (模擬)
+        const locations = {
+            hotel: [35.0788, 129.0180], // Wyndham
+            airport: [35.1732, 128.9464],
+            songdo: [35.0760, 129.0220],
+            nampo: [35.0975, 129.0267],
+            gamcheon: [35.0975, 129.0106],
+            haeundae: [35.1587, 129.1604],
+            capsule: [35.1600, 129.1678]
+        };
+
+        // 添加固定標記 (飯店)
+        const hotelIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#4f46e5; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 0 4px rgba(79, 70, 229, 0.3);'></div><div class='marker-label'>Wyndham Grand</div>",
+            iconSize: [30, 42],
+            iconAnchor: [15, 42]
+        });
+        L.marker(locations.hotel, {icon: hotelIcon}).addTo(map);
+
+        // --- 3. 邏輯控制 ---
+        function switchDay(day) {
+            // 更新 Tabs 樣式
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            const activeBtn = document.getElementById(`tab-${day}`);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-indigo-500', 'text-indigo-600');
+
+            // 更新摘要
+            document.getElementById('day-summary').textContent = tripData[day].summary;
+
+            // 更新地圖視角
+            map.flyTo(tripData[day].center, tripData[day].zoom, {
+                animate: true,
+                duration: 1.5
+            });
+
+            // 渲染列表內容
+            const container = document.getElementById('itinerary-content');
+            container.innerHTML = ''; 
+
+            tripData[day].items.forEach((item, index) => {
+                let cardHtml = '';
+
+                // 特殊類型：Day 4 的比較方案
+                if (item.type === 'comparison') {
+                    cardHtml = `
+                        <div class="bg-slate-800 text-white rounded-xl p-5 shadow-lg fade-in border border-slate-700" style="animation-delay: ${index * 0.1}s">
+                            <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fa-solid fa-route text-yellow-400 mr-2"></i> ${item.title}</h3>
+                            <div class="space-y-4">
+                                ${item.options.map(opt => `
+                                    <div class="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-bold text-sm text-yellow-100">${opt.name}</span>
+                                            <span class="bg-slate-600 text-white text-xs px-2 py-0.5 rounded">${opt.price}</span>
+                                        </div>
+                                        ${typeof opt.details === 'string' 
+                                            ? `<p class="text-xs text-slate-300">${opt.details}</p>`
+                                            : opt.details 
+                                        }
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                // 交通類 (深色卡片)
+                else if (item.type === 'car' || (item.type === 'transport' && item.icon)) {
+                    cardHtml = `
+                        <div class="bg-white rounded-xl p-4 shadow-md flex items-start gap-4 fade-in border-l-4 border-slate-600" style="animation-delay: ${index * 0.1}s">
+                            <div class="flex-shrink-0 mt-1">
+                                <i class="fa-solid ${item.icon || 'fa-car'} text-xl text-slate-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-lg text-slate-800">${item.title}</h3>
+                                    ${item.price ? `<span class="bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded border border-slate-200">${item.price}</span>` : ''}
+                                </div>
+                                <p class="text-gray-600 text-sm mt-1">${item.desc}</p>
+                                ${item.note ? `<p class="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-100"><i class="fa-solid fa-circle-info mr-1"></i> ${item.note}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+                // 一般圖文卡片
+                else {
+                    cardHtml = `
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition fade-in border border-gray-100 group" style="animation-delay: ${index * 0.1}s">
+                            <div class="flex flex-col sm:flex-row h-full">
+                                ${item.image ? `
+                                <div class="sm:w-32 h-32 sm:h-auto relative flex-shrink-0 overflow-hidden">
+                                    <img src="${item.image}" alt="${item.title}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                    <div class="absolute top-2 left-2 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded backdrop-blur-sm">
+                                        ${item.time}
+                                    </div>
+                                </div>` : ''}
+                                
+                                <div class="p-4 flex-1 flex flex-col justify-center">
+                                    ${!item.image ? `<div class="text-xs font-bold text-gray-400 mb-1">${item.time}</div>` : ''}
+                                    <h3 class="font-bold text-lg text-slate-800 mb-1 flex items-center">
+                                        ${getIconByType(item.type)} 
+                                        ${item.title}
+                                    </h3>
+                                    <p class="text-gray-600 text-sm leading-relaxed">${item.desc}</p>
+                                    ${item.price ? `<div class="mt-2 text-indigo-600 font-bold text-sm">${item.price}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function getIconByType(type) {
+            switch(type) {
+                case 'hotel': return '<i class="fa-solid fa-bed text-indigo-500 mr-2"></i>';
+                case 'food': return '<i class="fa-solid fa-utensils text-orange-500 mr-2"></i>';
+                case 'sight': return '<i class="fa-solid fa-camera text-blue-500 mr-2"></i>';
+                case 'transport': return '<i class="fa-solid fa-plane text-sky-500 mr-2"></i>';
+                default: return '';
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            switchDay(1);
+        });
+    </script>
+</body>
+</html>
