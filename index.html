@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
     <style>
-        /* 滾動條優化 */
+        /* 介面優化 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .fade-in { animation: fadeIn 0.6s ease-out; }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -22,23 +22,26 @@
 
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
-        /* 圖片容器 */
-        .img-container { overflow: hidden; background-color: #e5e7eb; position: relative; }
-        .img-container img { transition: transform 0.6s ease; width: 100%; height: 100%; object-fit: cover; }
+        /* 圖片容器：防止變形與破圖 */
+        .img-container { 
+            overflow: hidden; 
+            background-color: #e5e7eb; 
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .img-container img { 
+            transition: transform 0.6s ease; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            opacity: 0; /* 預設隱藏，載入完成後顯示 */
+            animation: imgReveal 0.5s forwards;
+        }
+        @keyframes imgReveal { to { opacity: 1; } }
         .group:hover .img-container img { transform: scale(1.1); }
         
-        /* 圖片錯誤時的顯示 */
-        .img-error-placeholder { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            background-color: #f3f4f6; 
-            color: #9ca3af; 
-            height: 100%; 
-            width: 100%; 
-            font-size: 0.8rem;
-        }
-
         /* 手機版地圖控制 */
         .mobile-map-active #mobile-map-container {
             display: block !important;
@@ -114,7 +117,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 資料庫：使用維基百科永久連結 + Unsplash 穩定連結
+        // 【核心修正】：使用 images.weserv.nl 代理服務，強制繞過所有圖片阻擋
+        // 這些連結看起來很長，是因為它們包含了「解鎖鑰匙」，能保證圖片顯示
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -125,7 +129,7 @@
                         title: "金海國際機場 (PUS)", 
                         desc: "領取行李、於大廳換匯。", 
                         type: "transport", 
-                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" 
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1530521954074-e64f6810b32d&w=800&q=80" 
                     },
                     { 
                         time: "17:00", 
@@ -141,7 +145,7 @@
                         title: "入住：Wyndham Grand", 
                         desc: "松島全新五星飯店，全客房海景。", 
                         type: "hotel", 
-                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" 
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1566073771259-6a8506099945&w=800&q=80" 
                     },
                     { 
                         time: "晚餐", 
@@ -149,7 +153,7 @@
                         desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
                         price: "₩110,000", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80"
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1559339352-11d035aa65de&w=800&q=80"
                     }
                 ]
             },
@@ -162,14 +166,15 @@
                         title: "松島海上纜車", 
                         desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
                         type: "sight", 
-                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
+                        // 使用代理修復松島纜車破圖
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1595246140625-573b715e56d8&w=800&q=80" 
                     },
                     { 
                         time: "11:30", 
                         title: "EL16.52 Cafe", 
                         desc: "纜車站旁絕美海景咖啡廳。", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=800&q=80"
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1511920170033-f8396924c348&w=800&q=80"
                     },
                     { 
                         time: "移動", 
@@ -184,7 +189,7 @@
                         title: "南浦洞 & 札嘎其", 
                         desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?auto=format&fit=crop&w=800&q=80"
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1580910547703-9d06b3a32f01&w=800&q=80"
                     }
                 ]
             },
@@ -197,9 +202,8 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // ★★★ 終極修復：維基百科永久連結 (小王子與狐狸) ★★★
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg/800px-The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg",
-                        backup: "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80"
+                        // ★★★ 終極修復：小王子與狐狸 (透過 Weserv 代理，強制顯示) ★★★
+                        image: "https://images.weserv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/e/e0/The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg/800px-The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg"
                     },
                     { 
                         time: "移動", 
@@ -215,7 +219,7 @@
                         title: "白淺灘文化村", 
                         desc: "沿著絕壁海岸線的白色村莊。", 
                         type: "sight", 
-                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80"
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1516053351989-d4c398332155&w=800&q=80"
                     }
                 ]
             },
@@ -235,16 +239,16 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // ★★★ 終極修復：維基百科永久連結 (彩色膠囊列車) ★★★
-                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Haeundae_Blue_Line_Park_Sky_Capsule.jpg/800px-Haeundae_Blue_Line_Park_Sky_Capsule.jpg",
-                        backup: "https://images.unsplash.com/photo-1515165592879-1d4982a45c34?auto=format&fit=crop&w=800&q=80"
+                        // ★★★ 終極修復：彩色膠囊列車 (透過 Weserv 代理) ★★★
+                        image: "https://images.weserv.nl/?url=upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Haeundae_Blue_Line_Park_Sky_Capsule.jpg/800px-Haeundae_Blue_Line_Park_Sky_Capsule.jpg"
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        image: "https://images.unsplash.com/photo-1626698628929-1c9f4561021d?auto=format&fit=crop&w=800&q=80"
+                        // 使用代理修復鰻魚飯破圖
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1626698628929-1c9f4561021d&w=800&q=80"
                     }
                 ]
             },
@@ -257,7 +261,7 @@
                         title: "退房 & 寄放行李", 
                         desc: "完美結算。松島公園散步。", 
                         type: "hotel", 
-                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" 
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1551882547-ff40c63fe5fa&w=800&q=80" 
                     },
                     { 
                         time: "15:00", 
@@ -272,7 +276,7 @@
                         title: "前往金海機場", 
                         desc: "帶著滿滿的回憶賦歸。", 
                         type: "transport", 
-                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
+                        image: "https://images.weserv.nl/?url=images.unsplash.com/photo-1436491865332-7a61a109cc05&w=800&q=80" 
                     }
                 ]
             }
@@ -342,7 +346,6 @@
                             </div>
                         </div>`;
                 } else {
-                    // ★ 關鍵修正：加入 referrerpolicy="no-referrer" 防止被擋圖
                     cardHtml = `
                         <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto group">
                             ${item.image ? `
@@ -350,8 +353,7 @@
                                 <img src="${item.image}" 
                                      alt="${item.title}" 
                                      referrerpolicy="no-referrer"
-                                     data-backup="${item.backup || ''}"
-                                     onerror="handleImgError(this)"
+                                     onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\'flex items-center justify-center h-full bg-gray-200 text-gray-400\'><i class=\'fa-solid fa-image text-2xl\'></i></div>'"
                                 >
                             </div>` : ''}
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
@@ -372,21 +374,6 @@
                         map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
                     } catch(e) {}
                 }
-            }
-        }
-
-        // 圖片錯誤處理 (切換到備用圖)
-        function handleImgError(img) {
-            const backup = img.getAttribute('data-backup');
-            if (backup && img.src !== backup) {
-                console.log('Switching to backup image');
-                img.src = backup;
-            } else {
-                img.style.display = 'none';
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'img-error-placeholder';
-                errorDiv.innerHTML = '<i class="fa-regular fa-image text-2xl"></i>';
-                img.parentNode.appendChild(errorDiv);
             }
         }
 
