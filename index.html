@@ -9,11 +9,12 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
     <style>
+        /* 介面優化 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -21,7 +22,12 @@
 
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         
-        /* 手機版地圖容器樣式控制 */
+        /* 圖片容器優化：防止圖片變形 */
+        .img-container { overflow: hidden; background-color: #f3f4f6; }
+        .img-container img { transition: transform 0.5s ease; }
+        .group:hover .img-container img { transform: scale(1.05); }
+
+        /* 手機版地圖控制 */
         .mobile-map-active #mobile-map-container {
             display: block !important;
             position: absolute;
@@ -96,7 +102,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 備用圖片連結 (如果主圖掛掉，會自動換這張)
+        // 備用圖：萬一真的還破圖，顯示一張漂亮的旅行通用圖，不留空白
         const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
 
         const tripData = {
@@ -104,29 +110,109 @@
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
                 center: [35.1000, 128.9800], zoom: 11,
                 items: [
-                    { time: "16:00", title: "金海國際機場 (PUS)", desc: "領取行李、於大廳換匯。", type: "transport", image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" },
-                    { time: "17:00", title: "機場 ➔ Wyndham Grand", desc: "推薦交通：舒適專車接送。耗時約 40-50 分鐘。", price: "₩25,000", note: "省去提行李轉乘地鐵的疲憊。", type: "car", icon: "fa-car" },
-                    { time: "17:30", title: "入住：Wyndham Grand", desc: "松島全新五星飯店，全客房海景。", type: "hotel", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" },
-                    { time: "晚餐", title: "The Bridge (飯店4F)", desc: "頂級海鮮自助餐，不用出門最輕鬆。", price: "₩110,000", type: "food", image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80" }
+                    { 
+                        time: "16:00", 
+                        title: "金海國際機場 (PUS)", 
+                        desc: "領取行李、於大廳換匯。", 
+                        type: "transport", 
+                        // 機場與飛機
+                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "17:00", 
+                        title: "機場 ➔ Wyndham Grand", 
+                        desc: "推薦交通：舒適專車接送。耗時約 40-50 分鐘。", 
+                        price: "₩25,000", 
+                        note: "省去提行李轉乘地鐵的疲憊。", 
+                        type: "car", 
+                        icon: "fa-car" 
+                    },
+                    { 
+                        time: "17:30", 
+                        title: "入住：Wyndham Grand", 
+                        desc: "松島全新五星飯店，全客房海景。", 
+                        type: "hotel", 
+                        // 豪華海景飯店意象
+                        image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "晚餐", 
+                        title: "The Bridge (飯店4F)", 
+                        desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
+                        price: "₩110,000", 
+                        type: "food", 
+                        // 精緻自助餐擺盤
+                        image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80" 
+                    }
                 ]
             },
             2: {
                 summary: "上午步行漫遊松島，下午前往南浦洞逛街，感受釜山熱鬧氣息。",
                 center: [35.0850, 129.0250], zoom: 13,
                 items: [
-                    { time: "10:00", title: "松島海上纜車", desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", type: "sight", image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" },
-                    { time: "11:30", title: "EL16.52 Cafe", desc: "纜車站旁絕美海景咖啡廳。", type: "food", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80" },
-                    { time: "移動", title: "松島 ➔ 南浦洞", desc: "短程移動，計程車最方便。", price: "₩7,000", type: "car", icon: "fa-taxi" },
-                    { time: "13:30", title: "南浦洞 & 札嘎其", desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", type: "food", image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?auto=format&fit=crop&w=800&q=80" }
+                    { 
+                        time: "10:00", 
+                        title: "松島海上纜車", 
+                        desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
+                        type: "sight", 
+                        // 海上纜車經典畫面
+                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "11:30", 
+                        title: "EL16.52 Cafe", 
+                        desc: "纜車站旁絕美海景咖啡廳。", 
+                        type: "food", 
+                        // 海景咖啡廳
+                        image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "移動", 
+                        title: "松島 ➔ 南浦洞", 
+                        desc: "短程移動，計程車最方便。", 
+                        price: "₩7,000", 
+                        type: "car", 
+                        icon: "fa-taxi" 
+                    },
+                    { 
+                        time: "13:30", 
+                        title: "南浦洞 & 札嘎其", 
+                        desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
+                        type: "food", 
+                        // 韓國市場熱鬧氛圍
+                        image: "https://images.unsplash.com/photo-1535189043414-47a3c49a0bed?auto=format&fit=crop&w=800&q=80" 
+                    }
                 ]
             },
             3: {
                 summary: "今日前往山坡景點，計程車是保留體力的必要投資。",
                 center: [35.0900, 129.0300], zoom: 13,
                 items: [
-                    { time: "10:00", title: "甘川洞文化村", desc: "釜山的馬丘比丘。尋找小王子雕像。", type: "sight", image: "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80" },
-                    { time: "移動", title: "飯店 ➔ 甘川洞", desc: "強烈建議計程車直達入口，省去爬坡。", price: "₩6,500", note: "公車需轉乘且大排長龍。", type: "car", icon: "fa-taxi" },
-                    { time: "14:00", title: "白淺灘文化村", desc: "沿著絕壁海岸線的白色村莊。", type: "sight", image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80" }
+                    { 
+                        time: "10:00", 
+                        title: "甘川洞文化村", 
+                        desc: "釜山的馬丘比丘。尋找小王子雕像。", 
+                        type: "sight", 
+                        // 甘川洞彩色小屋 (經典畫面)
+                        image: "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "移動", 
+                        title: "飯店 ➔ 甘川洞", 
+                        desc: "強烈建議計程車直達入口，省去爬坡。", 
+                        price: "₩6,500", 
+                        note: "公車需轉乘且大排長龍。", 
+                        type: "car", 
+                        icon: "fa-taxi" 
+                    },
+                    { 
+                        time: "14:00", 
+                        title: "白淺灘文化村", 
+                        desc: "沿著絕壁海岸線的白色村莊。", 
+                        type: "sight", 
+                        // 海岸白色村莊意象
+                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80" 
+                    }
                 ]
             },
             4: {
@@ -140,17 +226,52 @@
                             { name: "省錢方案", tag: "高CP", price: "₩6,000", details: "計程車至南浦站 ➔ 地鐵1號線 ➔ 西面轉2號線 ➔ 中洞站", color: "text-green-400" }
                         ]
                     },
-                    { time: "11:00", title: "天空膠囊列車", desc: "務必提前2週預約 (尾浦出發)。", type: "sight", image: "https://images.unsplash.com/photo-1518177579975-61a007f35339?auto=format&fit=crop&w=800&q=80" },
-                    { time: "午餐", title: "海木 (Haemok)", desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", type: "food", image: "https://images.unsplash.com/photo-1553163147-622ab57be63b?auto=format&fit=crop&w=800&q=80" }
+                    { 
+                        time: "11:00", 
+                        title: "天空膠囊列車", 
+                        desc: "務必提前2週預約 (尾浦出發)。", 
+                        type: "sight", 
+                        // 膠囊列車 (彩色小火車) - 這是大家最愛的畫面
+                        image: "https://images.unsplash.com/photo-1688376662419-a1b7d5193919?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "午餐", 
+                        title: "海木 (Haemok)", 
+                        desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
+                        type: "food", 
+                        // 鰻魚飯/日式烤物
+                        image: "https://images.unsplash.com/photo-1626698628929-1c9f4561021d?auto=format&fit=crop&w=800&q=80" 
+                    }
                 ]
             },
             5: {
                 summary: "享受飯店設施到最後一刻。退房後行李寄放櫃台。",
                 center: [35.0760, 129.0170], zoom: 14,
                 items: [
-                    { time: "11:00", title: "退房 & 寄放行李", desc: "完美結算。松島公園散步。", type: "hotel", image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80" },
-                    { time: "15:00", title: "最後的海景咖啡", desc: "飯店附近咖啡廳，整理心情。", price: "₩25,000", type: "food", icon: "fa-mug-hot" },
-                    { time: "16:30", title: "前往金海機場", desc: "帶著滿滿的回憶賦歸。", type: "transport", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" }
+                    { 
+                        time: "11:00", 
+                        title: "退房 & 寄放行李", 
+                        desc: "完美結算。松島公園散步。", 
+                        type: "hotel", 
+                        // 飯店大廳/休閒意象
+                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" 
+                    },
+                    { 
+                        time: "15:00", 
+                        title: "最後的海景咖啡", 
+                        desc: "飯店附近咖啡廳，整理心情。", 
+                        price: "₩25,000", 
+                        type: "food", 
+                        icon: "fa-mug-hot" 
+                    },
+                    { 
+                        time: "16:30", 
+                        title: "前往金海機場", 
+                        desc: "帶著滿滿的回憶賦歸。", 
+                        type: "transport", 
+                        // 飛機窗外/賦歸
+                        image: "https://images.unsplash.com/photo-1483450389192-3d3a0853befa?auto=format&fit=crop&w=800&q=80" 
+                    }
                 ]
             }
         };
@@ -166,7 +287,7 @@
             // 標記飯店
             const hotelIcon = L.divIcon({
                 className: 'custom-div-icon',
-                html: "<div style='background-color:#4f46e5; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 0 4px rgba(79, 70, 229, 0.3);'></div>",
+                html: "<div style='background-color:#4f46e5; width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow:0 0 0 4px rgba(79, 70, 229, 0.4);'></div>",
                 iconSize: [20, 20]
             });
             L.marker([35.0788, 129.0180], {icon: hotelIcon}).addTo(map);
@@ -175,7 +296,7 @@
         }
 
         function switchDay(day) {
-            // 1. 先處理文字內容
+            // 1. 切換頁籤樣式
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('border-indigo-500', 'text-indigo-600');
                 btn.classList.add('border-transparent', 'text-gray-500');
@@ -190,6 +311,7 @@
 
             tripData[day].items.forEach((item, index) => {
                 let cardHtml = '';
+                // 比較方案卡片 (Day 4)
                 if (item.type === 'comparison') {
                     cardHtml = `
                         <div class="bg-slate-800 text-white rounded-xl p-4 shadow-lg fade-in border border-slate-700">
@@ -206,7 +328,9 @@
                                 `).join('')}
                             </div>
                         </div>`;
-                } else if (item.type === 'car' || (item.type === 'transport' && item.icon)) {
+                } 
+                // 純文字/交通卡片 (沒有圖片)
+                else if (item.type === 'car' || (item.type === 'transport' && item.icon) || (item.type === 'food' && item.icon)) {
                     cardHtml = `
                         <div class="bg-white rounded-xl p-4 shadow-md flex items-start gap-3 fade-in border-l-4 border-slate-600">
                             <div class="flex-shrink-0 mt-1"><i class="fa-solid ${item.icon || 'fa-car'} text-lg text-slate-600"></i></div>
@@ -216,13 +340,16 @@
                                     ${item.price ? `<span class="bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded">${item.price}</span>` : ''}
                                 </div>
                                 <p class="text-gray-600 text-sm mt-1">${item.desc}</p>
+                                ${item.note ? `<p class="text-xs text-gray-400 mt-2 border-t border-gray-100 pt-2"><i class="fa-solid fa-info-circle mr-1"></i>${item.note}</p>` : ''}
                             </div>
                         </div>`;
-                } else {
+                } 
+                // 圖文卡片 (景點/餐廳/飯店)
+                else {
                     cardHtml = `
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto">
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto group">
                             ${item.image ? `
-                            <div class="w-32 md:w-32 h-full relative flex-shrink-0 bg-gray-200">
+                            <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
                                 <img src="${item.image}" 
                                      alt="${item.title}" 
                                      class="absolute inset-0 w-full h-full object-cover"
@@ -241,7 +368,7 @@
                 container.insertAdjacentHTML('beforeend', cardHtml);
             });
 
-            // 2. 處理地圖
+            // 2. 處理地圖移動
             if (map && tripData[day].center) {
                 const isMobileMapHidden = document.getElementById('mobile-map-container').classList.contains('hidden');
                 if (!isMobileMapHidden || window.innerWidth >= 768) {
