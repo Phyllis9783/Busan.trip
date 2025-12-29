@@ -114,7 +114,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 資料與修正後的圖片連結 (已更換為新的穩定圖源)
+        // 資料與修正後的圖片連結 (使用維基百科穩定圖源作為最終手段)
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
@@ -197,8 +197,10 @@
                         title: "甘川洞文化村", 
                         desc: "釜山的馬丘比丘。尋找小王子雕像。", 
                         type: "sight", 
-                        // ★修正：換成全新的「彩色積木小屋」全景圖，非常穩定
-                        image: "https://images.unsplash.com/photo-1580983804825-7b7ba977d242?auto=format&fit=crop&w=800&q=80"
+                        // ★★★ 終極修復：直接使用維基百科「小王子與狐狸」的穩定連結 ★★★
+                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg/800px-The_Little_Prince_and_Desert_Fox_statues_in_Gamcheon_Culture_Village.jpg",
+                        // 萬一維基百科也掛了，使用 Unsplash 備用
+                        backup: "https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "移動", 
@@ -234,15 +236,16 @@
                         title: "天空膠囊列車", 
                         desc: "務必提前2週預約 (尾浦出發)。", 
                         type: "sight", 
-                        // 彩色列車
-                        image: "https://images.unsplash.com/photo-1515165592879-1d4982a45c34?auto=format&fit=crop&w=800&q=80"
+                        // ★★★ 終極修復：使用維基百科「天空膠囊列車」穩定連結 ★★★
+                        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Haeundae_Blue_Line_Park_Sky_Capsule.jpg/800px-Haeundae_Blue_Line_Park_Sky_Capsule.jpg",
+                        backup: "https://images.unsplash.com/photo-1515165592879-1d4982a45c34?auto=format&fit=crop&w=800&q=80"
                     },
                     { 
                         time: "午餐", 
                         title: "海木 (Haemok)", 
                         desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
                         type: "food", 
-                        // ★修正：換成美味的日式炭烤鰻魚飯特寫
+                        // 使用高清日式鰻魚飯圖片
                         image: "https://images.unsplash.com/photo-1626698628929-1c9f4561021d?auto=format&fit=crop&w=800&q=80"
                     }
                 ]
@@ -347,7 +350,8 @@
                             <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
                                 <img src="${item.image}" 
                                      alt="${item.title}" 
-                                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'img-error-placeholder\'><i class=\'fa-regular fa-image text-2xl\'></i></div>';"
+                                     data-backup="${item.backup || ''}"
+                                     onerror="handleImgError(this)"
                                 >
                             </div>` : ''}
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
@@ -368,6 +372,21 @@
                         map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
                     } catch(e) {}
                 }
+            }
+        }
+
+        // 圖片錯誤處理 (切換到備用圖)
+        function handleImgError(img) {
+            const backup = img.getAttribute('data-backup');
+            if (backup && img.src !== backup) {
+                console.log('Switching to backup image');
+                img.src = backup;
+            } else {
+                img.style.display = 'none';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'img-error-placeholder';
+                errorDiv.innerHTML = '<i class="fa-regular fa-image text-2xl"></i>';
+                img.parentNode.appendChild(errorDiv);
             }
         }
 
