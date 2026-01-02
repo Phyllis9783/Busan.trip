@@ -13,12 +13,16 @@
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         .img-container { overflow: hidden; background-color: #f3f4f6; }
         .img-container img { transition: transform 0.6s ease; }
         .group:hover .img-container img { transform: scale(1.1); }
+        
+        /* 地圖模式控制 - 關鍵修復 */
         .mobile-map-active #mobile-map-container { display: block !important; position: absolute; inset: 0; z-index: 40; }
         .mobile-map-active #itinerary-panel { display: none; }
+        
         .nav-active { color: #4f46e5; }
         .modal-bg { background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
     </style>
@@ -61,9 +65,11 @@
                 <div id="itinerary-content" class="space-y-4"></div>
                 <div class="h-12"></div>
             </div>
+            
             <div id="mobile-map-container" class="hidden md:block flex-1 relative bg-gray-200">
                 <div id="map"></div>
             </div>
+            
             <button onclick="toggleMobileMap()" id="map-toggle-btn" class="md:hidden absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-2xl z-20 flex items-center justify-center hover:bg-indigo-700 transition active:scale-95">
                 <i class="fa-solid fa-map-location-dot text-xl"></i>
             </button>
@@ -152,13 +158,10 @@
 
     <script>
         const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
-        // *** 匯率設定 ***
-        const EXCHANGE_RATE = 0.024; // 1 KRW = 0.024 TWD (約 1:41)
+        const EXCHANGE_RATE = 0.024;
         const TOTAL_BUDGET_KRW = 650000;
         
-        function krwToTwd(krw) {
-            return Math.round(krw * EXCHANGE_RATE);
-        }
+        function krwToTwd(krw) { return Math.round(krw * EXCHANGE_RATE); }
 
         const tripData = {
             1: { summary: "抵達釜山，直奔松島溫德姆。", center: [35.1000, 128.9800], zoom: 11, items: [
@@ -188,7 +191,7 @@
         };
 
         let map;
-        let expenses = JSON.parse(localStorage.getItem('busan_v6_twd')) || [];
+        let expenses = JSON.parse(localStorage.getItem('busan_v7_twd')) || [];
         let budgetChart;
         let totalEstimateTWD = 0;
 
@@ -200,14 +203,23 @@
             renderExpenses();
             updateBudgetUI();
             
-            // 監聽輸入框，即時換算
             document.getElementById('input-cost').addEventListener('input', function(e) {
                 const val = parseInt(e.target.value) || 0;
                 document.getElementById('preview-twd').innerText = krwToTwd(val).toLocaleString();
             });
         });
 
+        // 關鍵修復：導航切換邏輯
         function switchMainView(view) {
+            // 1. 強制重置地圖模式 (解決無法返回行程頁的問題)
+            document.body.classList.remove('mobile-map-active');
+            const btnIcon = document.querySelector('#map-toggle-btn i');
+            if(btnIcon) {
+                btnIcon.classList.remove('fa-list-ul');
+                btnIcon.classList.add('fa-map-location-dot');
+            }
+
+            // 2. 切換頁面
             const views = ['itinerary', 'budget'];
             const header = document.getElementById('main-header');
             views.forEach(v => {
@@ -223,8 +235,10 @@
                     nav.classList.add('text-slate-400');
                 }
             });
+
             if (view === 'itinerary') header.classList.remove('hidden');
             else header.classList.add('hidden');
+            
             if (view === 'itinerary' && map) setTimeout(() => map.invalidateSize(), 100);
         }
 
@@ -262,7 +276,6 @@
             container.innerHTML = ''; 
 
             tripData[day].items.forEach((item) => {
-                // 產生價格顯示 HTML (雙幣並陳)
                 let priceHtml = '';
                 if (item.price) {
                     const kVal = parsePrice(item.price);
@@ -348,7 +361,7 @@
             if (costKRW && name) {
                 const costTWD = krwToTwd(costKRW);
                 expenses.push({ id: Date.now(), name, costKRW, costTWD, cat });
-                localStorage.setItem('busan_v6_twd', JSON.stringify(expenses));
+                localStorage.setItem('busan_v7_twd', JSON.stringify(expenses));
                 renderExpenses();
                 updateBudgetUI();
                 closeExpenseModal();
@@ -381,7 +394,7 @@
         function updateBudgetUI() {
             const spentTWD = expenses.reduce((acc, curr) => acc + curr.costTWD, 0);
             const remainTWD = totalEstimateTWD - spentTWD;
-            const totalBudgetTWD = krwToTwd(TOTAL_BUDGET_KRW); // 總預算也換算
+            const totalBudgetTWD = krwToTwd(TOTAL_BUDGET_KRW); 
             const finalRemain = totalBudgetTWD - spentTWD;
 
             document.getElementById('dash-remain').innerText = finalRemain.toLocaleString();
@@ -393,7 +406,7 @@
             budgetChart.update();
         }
 
-        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v6_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
+        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v7_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
         function getIcon(cat) { const map = { food: '<i class="fa-solid fa-utensils"></i>', transport: '<i class="fa-solid fa-taxi"></i>', shopping: '<i class="fa-solid fa-bag-shopping"></i>', ticket: '<i class="fa-solid fa-ticket"></i>', stay: '<i class="fa-solid fa-bed"></i>', other: '<i class="fa-solid fa-circle"></i>' }; return map[cat] || map.other; }
     </script>
 </body>
