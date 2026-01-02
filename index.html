@@ -19,7 +19,7 @@
         .img-container img { transition: transform 0.6s ease; }
         .group:hover .img-container img { transform: scale(1.1); }
         
-        /* 地圖模式控制 - 關鍵修復 */
+        /* 地圖模式控制 */
         .mobile-map-active #mobile-map-container { display: block !important; position: absolute; inset: 0; z-index: 40; }
         .mobile-map-active #itinerary-panel { display: none; }
         
@@ -191,9 +191,10 @@
         };
 
         let map;
-        let expenses = JSON.parse(localStorage.getItem('busan_v7_twd')) || [];
+        let expenses = JSON.parse(localStorage.getItem('busan_v8_twd')) || [];
         let budgetChart;
         let totalEstimateTWD = 0;
+        let currentDay = 1; // 追蹤當前天數，以便切換地圖
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
@@ -264,6 +265,7 @@
         }
 
         function switchDay(day) {
+            currentDay = day; // 記錄當前天數
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('border-indigo-500', 'text-indigo-600');
                 btn.classList.add('border-transparent', 'text-gray-500');
@@ -316,9 +318,10 @@
                 }
                 container.insertAdjacentHTML('beforeend', cardHtml);
             });
+            
+            // 關鍵修復：切換天數時，強制更新地圖位置 (無論地圖是否顯示)
             if (map && tripData[day].center) {
-                const isMobileMapHidden = document.getElementById('mobile-map-container').classList.contains('hidden');
-                if (!isMobileMapHidden || window.innerWidth >= 768) map.flyTo(tripData[day].center, tripData[day].zoom);
+                map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
             }
         }
 
@@ -327,7 +330,11 @@
             const btnIcon = document.querySelector('#map-toggle-btn i');
             if (document.body.classList.contains('mobile-map-active')) {
                 btnIcon.classList.replace('fa-map-location-dot', 'fa-list-ul');
-                setTimeout(() => map.invalidateSize(), 100);
+                setTimeout(() => {
+                    map.invalidateSize();
+                    // 打開地圖時，再次確認位置正確
+                    if(tripData[currentDay]) map.flyTo(tripData[currentDay].center, tripData[currentDay].zoom);
+                }, 100);
             } else {
                 btnIcon.classList.replace('fa-list-ul', 'fa-map-location-dot');
             }
@@ -361,7 +368,7 @@
             if (costKRW && name) {
                 const costTWD = krwToTwd(costKRW);
                 expenses.push({ id: Date.now(), name, costKRW, costTWD, cat });
-                localStorage.setItem('busan_v7_twd', JSON.stringify(expenses));
+                localStorage.setItem('busan_v8_twd', JSON.stringify(expenses));
                 renderExpenses();
                 updateBudgetUI();
                 closeExpenseModal();
@@ -406,7 +413,7 @@
             budgetChart.update();
         }
 
-        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v7_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
+        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v8_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
         function getIcon(cat) { const map = { food: '<i class="fa-solid fa-utensils"></i>', transport: '<i class="fa-solid fa-taxi"></i>', shopping: '<i class="fa-solid fa-bag-shopping"></i>', ticket: '<i class="fa-solid fa-ticket"></i>', stay: '<i class="fa-solid fa-bed"></i>', other: '<i class="fa-solid fa-circle"></i>' }; return map[cat] || map.other; }
     </script>
 </body>
