@@ -31,25 +31,25 @@
 
     <header id="main-header" class="bg-white shadow-sm z-30 flex-none relative">
         <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex items-center justify-between mb-2">
-                <div>
-                    <h1 class="text-lg font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1">TWD版</span></h1>
-                    <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand</p>
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-base md:text-lg font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1 align-middle">TWD</span></h1>
+                    <p class="text-xs text-slate-500 mt-0.5 truncate"><i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand</p>
                 </div>
-                <div class="text-right">
-                    <p class="text-[10px] text-slate-400 uppercase">預估總花費 (TWD)</p>
-                    <p class="text-lg font-bold text-slate-800" id="header-total-budget">...</p>
+                <div class="text-right flex-shrink-0">
+                    <p class="text-[10px] text-slate-400 uppercase">預估花費</p>
+                    <p class="text-lg font-bold text-slate-800 leading-tight" id="header-total-budget">...</p>
                 </div>
             </div>
         </div>
         <div class="border-t border-gray-200">
             <div class="max-w-7xl mx-auto px-4">
-                <nav class="flex space-x-4 overflow-x-auto pb-1" aria-label="Tabs">
-                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1 抵達</button>
-                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2 松島</button>
-                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3 文化</button>
-                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4 海雲臺</button>
-                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5 賦歸</button>
+                <nav class="flex space-x-3 overflow-x-auto pb-1" aria-label="Tabs">
+                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1</button>
+                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2</button>
+                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3</button>
+                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4</button>
+                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5</button>
                 </nav>
             </div>
         </div>
@@ -191,10 +191,10 @@
         };
 
         let map;
-        let expenses = JSON.parse(localStorage.getItem('busan_v8_twd')) || [];
+        let expenses = JSON.parse(localStorage.getItem('busan_v9_twd')) || [];
         let budgetChart;
         let totalEstimateTWD = 0;
-        let currentDay = 1; // 追蹤當前天數，以便切換地圖
+        let currentDay = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
@@ -210,9 +210,7 @@
             });
         });
 
-        // 關鍵修復：導航切換邏輯
         function switchMainView(view) {
-            // 1. 強制重置地圖模式 (解決無法返回行程頁的問題)
             document.body.classList.remove('mobile-map-active');
             const btnIcon = document.querySelector('#map-toggle-btn i');
             if(btnIcon) {
@@ -220,7 +218,6 @@
                 btnIcon.classList.add('fa-map-location-dot');
             }
 
-            // 2. 切換頁面
             const views = ['itinerary', 'budget'];
             const header = document.getElementById('main-header');
             views.forEach(v => {
@@ -265,7 +262,7 @@
         }
 
         function switchDay(day) {
-            currentDay = day; // 記錄當前天數
+            currentDay = day;
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('border-indigo-500', 'text-indigo-600');
                 btn.classList.add('border-transparent', 'text-gray-500');
@@ -319,7 +316,6 @@
                 container.insertAdjacentHTML('beforeend', cardHtml);
             });
             
-            // 關鍵修復：切換天數時，強制更新地圖位置 (無論地圖是否顯示)
             if (map && tripData[day].center) {
                 map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
             }
@@ -332,7 +328,6 @@
                 btnIcon.classList.replace('fa-map-location-dot', 'fa-list-ul');
                 setTimeout(() => {
                     map.invalidateSize();
-                    // 打開地圖時，再次確認位置正確
                     if(tripData[currentDay]) map.flyTo(tripData[currentDay].center, tripData[currentDay].zoom);
                 }, 100);
             } else {
@@ -368,7 +363,7 @@
             if (costKRW && name) {
                 const costTWD = krwToTwd(costKRW);
                 expenses.push({ id: Date.now(), name, costKRW, costTWD, cat });
-                localStorage.setItem('busan_v8_twd', JSON.stringify(expenses));
+                localStorage.setItem('busan_v9_twd', JSON.stringify(expenses));
                 renderExpenses();
                 updateBudgetUI();
                 closeExpenseModal();
@@ -413,7 +408,7 @@
             budgetChart.update();
         }
 
-        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v8_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
+        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v9_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
         function getIcon(cat) { const map = { food: '<i class="fa-solid fa-utensils"></i>', transport: '<i class="fa-solid fa-taxi"></i>', shopping: '<i class="fa-solid fa-bag-shopping"></i>', ticket: '<i class="fa-solid fa-ticket"></i>', stay: '<i class="fa-solid fa-bed"></i>', other: '<i class="fa-solid fa-circle"></i>' }; return map[cat] || map.other; }
     </script>
 </body>
