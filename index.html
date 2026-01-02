@@ -31,25 +31,21 @@
 
     <header id="main-header" class="bg-white shadow-sm z-30 flex-none relative">
         <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex items-center justify-between gap-3 mb-2">
-                <div class="flex-1 min-w-0">
-                    <h1 class="text-base md:text-lg font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1 align-middle">TWD</span></h1>
-                    <p class="text-xs text-slate-500 mt-0.5 truncate"><i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand</p>
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1 align-middle">Phyllis Edition</span></h1>
+                    <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand</p>
                 </div>
-                <div class="text-right flex-shrink-0">
-                    <p class="text-[10px] text-slate-400 uppercase">預估花費</p>
-                    <p class="text-lg font-bold text-slate-800 leading-tight" id="header-total-budget">...</p>
                 </div>
-            </div>
         </div>
         <div class="border-t border-gray-200">
             <div class="max-w-7xl mx-auto px-4">
                 <nav class="flex space-x-3 overflow-x-auto pb-1" aria-label="Tabs">
-                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1</button>
-                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2</button>
-                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3</button>
-                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4</button>
-                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5</button>
+                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1 抵達</button>
+                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2 松島</button>
+                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3 文化</button>
+                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4 海雲臺</button>
+                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5 賦歸</button>
                 </nav>
             </div>
         </div>
@@ -77,18 +73,13 @@
 
         <div id="view-budget" class="hidden w-full h-full overflow-y-auto bg-slate-50 p-4 pb-24">
             <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6">
+                <div class="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500 rounded-full opacity-50 blur-2xl"></div>
                 <div class="relative z-10">
-                    <p class="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">剩餘預算 (TWD)</p>
-                    <h2 class="text-4xl font-black tracking-tight">NT$ <span id="dash-remain">0</span></h2>
-                    <div class="mt-4 flex justify-between items-end border-t border-indigo-500/30 pt-3">
-                        <div>
-                            <p class="text-[10px] text-indigo-200 uppercase">總預算 (KRW)</p>
-                            <p class="font-medium opacity-80">₩ 650,000</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-indigo-200 uppercase">今日匯率參考</p>
-                            <p class="font-medium opacity-80">1 : 0.024</p>
-                        </div>
+                    <p class="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">目前累積花費 (Total Spent)</p>
+                    <h2 class="text-4xl font-black tracking-tight">NT$ <span id="dash-spent-total">0</span></h2>
+                    <div class="mt-4 border-t border-indigo-500/30 pt-3 flex justify-between items-center">
+                        <p class="text-[10px] text-indigo-200 uppercase">今日匯率參考</p>
+                        <p class="text-xs font-medium opacity-80">1 KRW ≈ 0.024 TWD</p>
                     </div>
                 </div>
             </div>
@@ -127,18 +118,13 @@
             <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
             <h3 class="text-center font-bold text-lg text-slate-800 mb-2">新增消費 (韓元)</h3>
             <p class="text-center text-xs text-slate-400 mb-6">系統將自動換算為台幣</p>
-            
             <form onsubmit="addExpense(event)" class="space-y-5">
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">₩</span>
                     <input type="number" id="input-cost" required placeholder="0" class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-10 pr-4 text-center text-3xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
-                <div class="text-center text-sm font-bold text-emerald-600">
-                    ≈ NT$ <span id="preview-twd">0</span>
-                </div>
-
+                <div class="text-center text-sm font-bold text-emerald-600">≈ NT$ <span id="preview-twd">0</span></div>
                 <input type="text" id="input-name" required placeholder="項目名稱 (如: 午餐)" class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-base outline-none">
-                
                 <div class="grid grid-cols-3 gap-3">
                     <button type="button" onclick="setCat('food', this)" class="cat-btn bg-indigo-50 border-indigo-500 border ring-2 ring-indigo-200 p-3 rounded-xl flex flex-col items-center gap-1"><i class="fa-solid fa-utensils text-orange-500"></i><span class="text-xs">美食</span></button>
                     <button type="button" onclick="setCat('transport', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-taxi text-blue-500"></i><span class="text-xs">交通</span></button>
@@ -159,7 +145,6 @@
     <script>
         const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
         const EXCHANGE_RATE = 0.024;
-        const TOTAL_BUDGET_KRW = 650000;
         
         function krwToTwd(krw) { return Math.round(krw * EXCHANGE_RATE); }
 
@@ -191,15 +176,14 @@
         };
 
         let map;
-        let expenses = JSON.parse(localStorage.getItem('busan_v9_twd')) || [];
+        let expenses = [];
+        try { expenses = JSON.parse(localStorage.getItem('busan_v11_twd')) || []; } catch(e) { console.warn("Storage issue"); }
         let budgetChart;
-        let totalEstimateTWD = 0;
         let currentDay = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
             switchDay(1);
-            calculateEstimate();
             initChart();
             renderExpenses();
             updateBudgetUI();
@@ -243,15 +227,6 @@
         function parsePrice(priceStr) {
             if(!priceStr) return 0;
             return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
-        }
-
-        function calculateEstimate() {
-            let totalKRW = 0;
-            Object.values(tripData).forEach(day => {
-                day.items.forEach(item => { if (item.price) totalKRW += parsePrice(item.price); });
-            });
-            totalEstimateTWD = krwToTwd(totalKRW);
-            document.getElementById('header-total-budget').innerText = `NT$ ${totalEstimateTWD.toLocaleString()}`;
         }
 
         function initMap() {
@@ -363,7 +338,7 @@
             if (costKRW && name) {
                 const costTWD = krwToTwd(costKRW);
                 expenses.push({ id: Date.now(), name, costKRW, costTWD, cat });
-                localStorage.setItem('busan_v9_twd', JSON.stringify(expenses));
+                try { localStorage.setItem('busan_v11_twd', JSON.stringify(expenses)); } catch(e){}
                 renderExpenses();
                 updateBudgetUI();
                 closeExpenseModal();
@@ -395,12 +370,7 @@
 
         function updateBudgetUI() {
             const spentTWD = expenses.reduce((acc, curr) => acc + curr.costTWD, 0);
-            const remainTWD = totalEstimateTWD - spentTWD;
-            const totalBudgetTWD = krwToTwd(TOTAL_BUDGET_KRW); 
-            const finalRemain = totalBudgetTWD - spentTWD;
-
-            document.getElementById('dash-remain').innerText = finalRemain.toLocaleString();
-            if(finalRemain < 0) document.getElementById('dash-remain').classList.replace('text-white', 'text-red-200');
+            document.getElementById('dash-spent-total').innerText = spentTWD.toLocaleString();
 
             const cats = { food:0, transport:0, shopping:0, ticket:0, stay:0, other:0 };
             expenses.forEach(e => { if(cats[e.cat] !== undefined) cats[e.cat] += e.costTWD; else cats.other += e.costTWD; });
@@ -408,7 +378,13 @@
             budgetChart.update();
         }
 
-        function clearExpenses() { if(confirm('確定清除所有紀錄？')) { expenses = []; localStorage.setItem('busan_v9_twd', JSON.stringify(expenses)); renderExpenses(); updateBudgetUI(); } }
+        function clearExpenses() { 
+            if(confirm('確定清除所有紀錄？')) { 
+                expenses = []; 
+                try { localStorage.setItem('busan_v11_twd', JSON.stringify(expenses)); } catch(e){}
+                renderExpenses(); updateBudgetUI(); 
+            } 
+        }
         function getIcon(cat) { const map = { food: '<i class="fa-solid fa-utensils"></i>', transport: '<i class="fa-solid fa-taxi"></i>', shopping: '<i class="fa-solid fa-bag-shopping"></i>', ticket: '<i class="fa-solid fa-ticket"></i>', stay: '<i class="fa-solid fa-bed"></i>', other: '<i class="fa-solid fa-circle"></i>' }; return map[cat] || map.other; }
     </script>
 </body>
