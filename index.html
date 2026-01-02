@@ -11,15 +11,15 @@
     
     <style>
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
         .img-container { overflow: hidden; background-color: #f3f4f6; }
         .img-container img { transition: transform 0.6s ease; }
         .group:hover .img-container img { transform: scale(1.1); }
         
-        /* 地圖模式控制 */
+        /* Mobile Map Fix */
         .mobile-map-active #mobile-map-container { display: block !important; position: absolute; inset: 0; z-index: 40; }
         .mobile-map-active #itinerary-panel { display: none; }
         
@@ -33,19 +33,19 @@
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between mb-2">
                 <div>
-                    <h1 class="text-lg md:text-xl font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1 align-middle">Phyllis Edition</span></h1>
+                    <h1 class="text-lg md:text-xl font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1 align-middle">Phyllis</span></h1>
                     <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand</p>
                 </div>
-                </div>
+            </div>
         </div>
         <div class="border-t border-gray-200">
             <div class="max-w-7xl mx-auto px-4">
                 <nav class="flex space-x-3 overflow-x-auto pb-1" aria-label="Tabs">
-                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1 抵達</button>
-                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2 松島</button>
-                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3 文化</button>
-                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4 海雲臺</button>
-                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5 賦歸</button>
+                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1</button>
+                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2</button>
+                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3</button>
+                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4</button>
+                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5</button>
                 </nav>
             </div>
         </div>
@@ -71,7 +71,7 @@
             </button>
         </div>
 
-        <div id="view-budget" class="hidden w-full h-full overflow-y-auto bg-slate-50 p-4 pb-24">
+        <div id="view-budget" class="hidden w-full h-full overflow-y-auto bg-slate-50 p-4 pb-24 scroll-smooth">
             <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6">
                 <div class="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500 rounded-full opacity-50 blur-2xl"></div>
                 <div class="relative z-10">
@@ -88,9 +88,11 @@
                 <i class="fa-solid fa-plus-circle mr-2"></i> 新增一筆消費
             </button>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 min-h-[250px]">
                 <h3 class="font-bold text-slate-800 mb-4 text-sm border-l-4 border-indigo-500 pl-2">消費分佈 (TWD)</h3>
-                <div class="h-48 w-full flex justify-center"><canvas id="budgetChart"></canvas></div>
+                <div class="h-48 w-full flex justify-center relative">
+                    <canvas id="budgetChart"></canvas>
+                </div>
             </div>
 
             <div>
@@ -98,7 +100,7 @@
                     <h3 class="font-bold text-slate-800 text-sm">支出紀錄</h3>
                     <button onclick="clearExpenses()" class="text-xs text-red-400"><i class="fa-solid fa-trash-can mr-1"></i> 重置</button>
                 </div>
-                <div id="expense-list" class="space-y-3"></div>
+                <div id="expense-list" class="space-y-3 pb-12"></div>
             </div>
         </div>
     </main>
@@ -121,7 +123,7 @@
             <form onsubmit="addExpense(event)" class="space-y-5">
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">₩</span>
-                    <input type="number" id="input-cost" required placeholder="0" class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-10 pr-4 text-center text-3xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="number" id="input-cost" inputmode="numeric" required placeholder="0" class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-10 pr-4 text-center text-3xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div class="text-center text-sm font-bold text-emerald-600">≈ NT$ <span id="preview-twd">0</span></div>
                 <input type="text" id="input-name" required placeholder="項目名稱 (如: 午餐)" class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-base outline-none">
@@ -145,7 +147,6 @@
     <script>
         const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
         const EXCHANGE_RATE = 0.024;
-        
         function krwToTwd(krw) { return Math.round(krw * EXCHANGE_RATE); }
 
         const tripData = {
@@ -177,14 +178,14 @@
 
         let map;
         let expenses = [];
-        try { expenses = JSON.parse(localStorage.getItem('busan_v11_twd')) || []; } catch(e) { console.warn("Storage issue"); }
-        let budgetChart;
+        try { expenses = JSON.parse(localStorage.getItem('busan_v12_final')) || []; } catch(e) { console.warn("Storage issue"); }
+        let budgetChart = null;
         let currentDay = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
             switchDay(1);
-            initChart();
+            // V12: 移除初始 initChart，改為切換時延遲載入，解決手機隱藏元素無法渲染問題
             renderExpenses();
             updateBudgetUI();
             
@@ -194,7 +195,9 @@
             });
         });
 
+        // 核心導航切換
         function switchMainView(view) {
+            // 關閉地圖
             document.body.classList.remove('mobile-map-active');
             const btnIcon = document.querySelector('#map-toggle-btn i');
             if(btnIcon) {
@@ -204,6 +207,7 @@
 
             const views = ['itinerary', 'budget'];
             const header = document.getElementById('main-header');
+            
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
                 const nav = document.getElementById(`nav-${v}`);
@@ -218,10 +222,17 @@
                 }
             });
 
-            if (view === 'itinerary') header.classList.remove('hidden');
-            else header.classList.add('hidden');
-            
-            if (view === 'itinerary' && map) setTimeout(() => map.invalidateSize(), 100);
+            if (view === 'itinerary') {
+                header.classList.remove('hidden');
+                if (map) setTimeout(() => map.invalidateSize(), 100);
+            } else {
+                header.classList.add('hidden');
+                // V12: 切換到財務頁時才繪製圖表，解決手機空白問題
+                setTimeout(() => {
+                    initChart();
+                    updateChartData();
+                }, 100);
+            }
         }
 
         function parsePrice(priceStr) {
@@ -310,9 +321,13 @@
             }
         }
 
+        // V12: 優化的圖表初始化邏輯
         function initChart() {
-            const ctx = document.getElementById('budgetChart').getContext('2d');
-            budgetChart = new Chart(ctx, {
+            const ctx = document.getElementById('budgetChart');
+            if (!ctx) return;
+            if (budgetChart) return; // 避免重複建立
+
+            budgetChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['美食', '交通', '購物', '門票', '住宿', '其他'],
@@ -320,6 +335,14 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }
             });
+        }
+
+        function updateChartData() {
+            if (!budgetChart) return;
+            const cats = { food:0, transport:0, shopping:0, ticket:0, stay:0, other:0 };
+            expenses.forEach(e => { if(cats[e.cat] !== undefined) cats[e.cat] += e.costTWD; else cats.other += e.costTWD; });
+            budgetChart.data.datasets[0].data = Object.values(cats);
+            budgetChart.update();
         }
 
         function openExpenseModal() { document.getElementById('modal-expense').classList.remove('hidden'); setTimeout(() => document.getElementById('modal-panel').classList.remove('translate-y-full'), 10); }
@@ -335,16 +358,24 @@
             const costKRW = parseInt(document.getElementById('input-cost').value);
             const name = document.getElementById('input-name').value;
             const cat = document.getElementById('input-cat').value;
+            
             if (costKRW && name) {
                 const costTWD = krwToTwd(costKRW);
                 expenses.push({ id: Date.now(), name, costKRW, costTWD, cat });
-                try { localStorage.setItem('busan_v11_twd', JSON.stringify(expenses)); } catch(e){}
+                try { localStorage.setItem('busan_v12_final', JSON.stringify(expenses)); } catch(e){}
+                
                 renderExpenses();
                 updateBudgetUI();
+                
+                // V12 關鍵修正：UI 流程
                 closeExpenseModal();
+                document.activeElement.blur(); // 強制收起鍵盤
                 document.getElementById('input-cost').value = '';
                 document.getElementById('input-name').value = '';
                 document.getElementById('preview-twd').innerText = '0';
+                
+                // 強制跳轉回財務列表頁面並更新
+                switchMainView('budget');
             }
         }
 
@@ -354,7 +385,7 @@
             if (expenses.length === 0) { list.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">尚無消費紀錄</div>'; return; }
             expenses.slice().reverse().forEach(ex => {
                 const row = `
-                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm fade-in">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 text-xs">${getIcon(ex.cat)}</div>
                             <div>
@@ -371,17 +402,13 @@
         function updateBudgetUI() {
             const spentTWD = expenses.reduce((acc, curr) => acc + curr.costTWD, 0);
             document.getElementById('dash-spent-total').innerText = spentTWD.toLocaleString();
-
-            const cats = { food:0, transport:0, shopping:0, ticket:0, stay:0, other:0 };
-            expenses.forEach(e => { if(cats[e.cat] !== undefined) cats[e.cat] += e.costTWD; else cats.other += e.costTWD; });
-            budgetChart.data.datasets[0].data = Object.values(cats);
-            budgetChart.update();
+            updateChartData(); // 確保數字與圖表同步
         }
 
         function clearExpenses() { 
             if(confirm('確定清除所有紀錄？')) { 
                 expenses = []; 
-                try { localStorage.setItem('busan_v11_twd', JSON.stringify(expenses)); } catch(e){}
+                try { localStorage.setItem('busan_v12_final', JSON.stringify(expenses)); } catch(e){}
                 renderExpenses(); updateBudgetUI(); 
             } 
         }
