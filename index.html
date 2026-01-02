@@ -2,11 +2,12 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>釜山溫德姆奢華舒壓之旅</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         /* 滾動條優化 */
@@ -14,7 +15,7 @@
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .fade-in { animation: fadeIn 0.6s ease-out; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -29,33 +30,40 @@
 
         /* 手機版地圖控制 */
         .mobile-map-active #mobile-map-container {
-            display: block !important;
-            position: absolute;
-            inset: 0;
-            z-index: 40;
+            display: block !important; position: absolute; inset: 0; z-index: 40;
         }
-        .mobile-map-active #itinerary-panel {
-            display: none;
-        }
+        .mobile-map-active #itinerary-panel { display: none; }
+
+        /* 底部導航欄樣式 */
+        .nav-active { color: #4f46e5; }
+        .nav-item { transition: all 0.2s; }
+        .nav-item:active { transform: scale(0.95); }
+
+        /* 模態視窗背景 */
+        .modal-bg { background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
     </style>
 </head>
-<body class="bg-gray-50 h-[100dvh] flex flex-col overflow-hidden text-slate-800">
+<body class="bg-slate-50 h-[100dvh] flex flex-col overflow-hidden text-slate-800">
 
-    <header class="bg-white shadow-sm z-50 flex-none relative">
+    <header id="main-header" class="bg-white shadow-sm z-30 flex-none relative">
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between mb-2">
                 <div>
-                    <h1 class="text-xl md:text-2xl font-bold text-slate-900 truncate">釜山溫德姆奢華舒壓之旅</h1>
+                    <h1 class="text-lg md:text-2xl font-bold text-slate-900 truncate">釜山溫德姆奢華之旅</h1>
                     <p class="text-xs md:text-sm text-slate-500 mt-1">
                         <i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand
                     </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-400 uppercase">預估總預算</p>
+                    <p class="text-sm font-bold text-slate-800" id="header-total-budget">計算中...</p>
                 </div>
             </div>
         </div>
 
         <div class="border-t border-gray-200">
             <div class="max-w-7xl mx-auto px-4">
-                <nav class="flex space-x-6 overflow-x-auto no-scrollbar pb-1" aria-label="Tabs">
+                <nav class="flex space-x-4 overflow-x-auto no-scrollbar pb-1" aria-label="Tabs">
                     <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1 抵達</button>
                     <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2 松島</button>
                     <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3 文化</button>
@@ -66,271 +74,261 @@
         </div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden relative w-full">
-        
-        <div id="itinerary-panel" class="w-full md:w-[480px] lg:w-[550px] overflow-y-auto bg-gray-50 p-4 pb-24 z-10 shadow-xl flex-none scroll-smooth">
-            
-            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r-lg shadow-sm">
-                <p class="text-sm text-indigo-900 font-medium leading-relaxed" id="day-summary">
-                    載入中...
-                </p>
+    <main class="flex-1 flex overflow-hidden relative w-full mb-16"> <div id="view-itinerary" class="flex w-full h-full">
+            <div id="itinerary-panel" class="w-full md:w-[480px] lg:w-[550px] overflow-y-auto bg-slate-50 p-4 pb-24 z-10 shadow-xl flex-none scroll-smooth">
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r-lg shadow-sm">
+                    <p class="text-sm text-indigo-900 font-medium leading-relaxed" id="day-summary">載入中...</p>
+                </div>
+                <div id="itinerary-content" class="space-y-5"></div>
+                <div class="h-12"></div>
             </div>
 
-            <div id="itinerary-content" class="space-y-5"></div>
-            <div class="h-12"></div>
-        </div>
-
-        <div id="mobile-map-container" class="hidden md:block flex-1 relative bg-gray-200">
-            <div id="map"></div>
-            
-            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-lg w-40 z-[1000] border border-gray-200 text-xs">
-                <div class="font-bold text-gray-500 mb-2">圖標說明</div>
-                <div class="space-y-2">
-                    <div class="flex items-center"><span class="w-5 h-5 rounded bg-indigo-600 text-white flex items-center justify-center mr-2"><i class="fa-solid fa-h"></i></span> 飯店</div>
-                    <div class="flex items-center"><span class="w-5 h-5 rounded bg-blue-500 text-white flex items-center justify-center mr-2">1</span> 景點</div>
-                    <div class="flex items-center"><span class="w-5 h-5 rounded bg-orange-500 text-white flex items-center justify-center mr-2"><i class="fa-solid fa-utensils"></i></span> 餐廳</div>
+            <div id="mobile-map-container" class="hidden md:block flex-1 relative bg-gray-200">
+                <div id="map"></div>
+                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-lg w-40 z-[1000] border border-gray-200 text-xs">
+                    <div class="font-bold text-gray-500 mb-2">圖標說明</div>
+                    <div class="space-y-2">
+                        <div class="flex items-center"><span class="w-5 h-5 rounded bg-indigo-600 text-white flex items-center justify-center mr-2"><i class="fa-solid fa-h"></i></span> 飯店</div>
+                        <div class="flex items-center"><span class="w-5 h-5 rounded bg-blue-500 text-white flex items-center justify-center mr-2">1</span> 景點</div>
+                        <div class="flex items-center"><span class="w-5 h-5 rounded bg-orange-500 text-white flex items-center justify-center mr-2"><i class="fa-solid fa-utensils"></i></span> 餐廳</div>
+                    </div>
                 </div>
             </div>
+
+            <button onclick="toggleMobileMap()" id="map-toggle-btn" class="md:hidden absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-2xl z-20 flex items-center justify-center hover:bg-indigo-700 transition active:scale-95">
+                <i class="fa-solid fa-map-location-dot text-xl"></i>
+            </button>
         </div>
 
-        <button onclick="toggleMobileMap()" id="map-toggle-btn" class="md:hidden absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-2xl z-50 flex items-center justify-center hover:bg-indigo-700 transition active:scale-95">
-            <i class="fa-solid fa-map-location-dot text-xl"></i>
-        </button>
+        <div id="view-budget" class="hidden w-full h-full overflow-y-auto bg-slate-50 p-4 pb-24">
+            <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6">
+                <div class="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500 rounded-full opacity-50 blur-2xl"></div>
+                <div class="relative z-10">
+                    <p class="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Budget Remaining</p>
+                    <h2 class="text-4xl font-black tracking-tight">₩ <span id="dash-remain">0</span></h2>
+                    <div class="mt-4 flex justify-between items-end border-t border-indigo-500/30 pt-3">
+                        <div>
+                            <p class="text-[10px] text-indigo-200 uppercase">預估總花費</p>
+                            <p class="font-bold">₩ <span id="dash-estimate">0</span></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-indigo-200 uppercase">實際已支出</p>
+                            <p class="font-bold">₩ <span id="dash-spent">0</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="openExpenseModal()" class="w-full bg-white border-2 border-dashed border-indigo-200 text-indigo-600 font-bold py-4 rounded-xl mb-6 hover:bg-indigo-50 transition active:scale-[0.98]">
+                <i class="fa-solid fa-plus-circle mr-2"></i> 新增一筆消費
+            </button>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                <h3 class="font-bold text-slate-800 mb-4 text-sm border-l-4 border-indigo-500 pl-2">消費分佈</h3>
+                <div class="h-48 w-full flex justify-center">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-3 px-1">
+                    <h3 class="font-bold text-slate-800 text-sm">支出紀錄</h3>
+                    <button onclick="clearExpenses()" class="text-xs text-red-400"><i class="fa-solid fa-trash-can mr-1"></i> 重置</button>
+                </div>
+                <div id="expense-list" class="space-y-3">
+                    </div>
+            </div>
+        </div>
 
     </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 h-16 flex justify-around items-center text-[10px] font-bold text-slate-400 z-50 pb-safe-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <button onclick="switchMainView('itinerary')" id="nav-itinerary" class="nav-item nav-active w-full h-full flex flex-col items-center justify-center gap-1">
+            <i class="fa-solid fa-list-check text-xl mb-0.5"></i> 行程
+        </button>
+        <button onclick="switchMainView('budget')" id="nav-budget" class="nav-item w-full h-full flex flex-col items-center justify-center gap-1">
+            <i class="fa-solid fa-wallet text-xl mb-0.5"></i> 財務
+        </button>
+    </nav>
+
+    <div id="modal-expense" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 modal-bg transition-opacity" onclick="closeExpenseModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 shadow-2xl transform transition-transform duration-300 translate-y-full" id="modal-panel">
+            <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-center font-bold text-lg text-slate-800 mb-6">新增消費</h3>
+            
+            <form onsubmit="addExpense(event)" class="space-y-5">
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">₩</span>
+                    <input type="number" id="input-cost" required placeholder="0" class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-10 pr-4 text-center text-3xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <input type="text" id="input-name" required placeholder="項目名稱 (如: 午餐)" class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-base outline-none">
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <button type="button" onclick="setCat('food', this)" class="cat-btn bg-indigo-50 border-indigo-500 border ring-2 ring-indigo-200 p-3 rounded-xl flex flex-col items-center gap-1"><i class="fa-solid fa-utensils text-orange-500"></i><span class="text-xs">美食</span></button>
+                    <button type="button" onclick="setCat('transport', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-taxi text-blue-500"></i><span class="text-xs">交通</span></button>
+                    <button type="button" onclick="setCat('shopping', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-bag-shopping text-pink-500"></i><span class="text-xs">購物</span></button>
+                    <button type="button" onclick="setCat('ticket', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-ticket text-purple-500"></i><span class="text-xs">門票</span></button>
+                    <button type="button" onclick="setCat('stay', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-bed text-indigo-500"></i><span class="text-xs">住宿</span></button>
+                    <button type="button" onclick="setCat('other', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-ellipsis text-gray-500"></i><span class="text-xs">其他</span></button>
+                </div>
+                <input type="hidden" id="input-cat" value="food">
+                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl text-lg shadow-lg active:scale-[0.98] transition">儲存</button>
+            </form>
+            <div class="h-6"></div>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // 備用圖：僅在圖片真的失效時才顯示，避免空白
         const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
 
+        // --- 行程資料 ---
         const tripData = {
             1: {
                 summary: "抵達釜山，直接前往飯店，省去轉乘搬運之苦。享受全客房海景的第一晚。",
                 center: [35.1000, 128.9800], zoom: 11,
                 items: [
-                    { 
-                        time: "16:00", 
-                        title: "金海國際機場 (PUS)", 
-                        desc: "領取行李、於大廳換匯。", 
-                        type: "transport", 
-                        // 機場行李意象
-                        image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "17:00", 
-                        title: "機場 ➔ Wyndham Grand", 
-                        desc: "推薦交通：舒適專車接送。耗時約 40-50 分鐘。", 
-                        price: "₩25,000", 
-                        note: "省去提行李轉乘地鐵的疲憊。", 
-                        type: "car", 
-                        icon: "fa-car" 
-                    },
-                    { 
-                        time: "17:30", 
-                        title: "入住：Wyndham Grand", 
-                        desc: "松島全新五星飯店，全客房海景。", 
-                        type: "hotel", 
-                        // 豪華海景房/飯店外觀
-                        image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "晚餐", 
-                        title: "The Bridge (飯店4F)", 
-                        desc: "頂級海鮮自助餐，不用出門最輕鬆。", 
-                        price: "₩110,000", 
-                        type: "food", 
-                        // 高級海鮮/自助餐盤
-                        image: "https://images.unsplash.com/photo-1529312266912-b33cf6227e2f?auto=format&fit=crop&w=800&q=80" 
-                    }
+                    { time: "16:00", title: "金海國際機場 (PUS)", desc: "領取行李、於大廳換匯。", type: "transport", image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80" },
+                    { time: "17:00", title: "機場 ➔ Wyndham Grand", desc: "舒適專車接送。", price: "₩25,000", type: "car", icon: "fa-car" },
+                    { time: "17:30", title: "入住：Wyndham Grand", desc: "松島全新五星飯店。", type: "hotel", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" },
+                    { time: "晚餐", title: "The Bridge (飯店4F)", desc: "頂級海鮮自助餐。", price: "₩110,000", type: "food", image: "https://images.unsplash.com/photo-1529312266912-b33cf6227e2f?auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             2: {
-                summary: "上午步行漫遊松島，下午前往南浦洞逛街，感受釜山熱鬧氣息。",
+                summary: "上午步行漫遊松島，下午前往南浦洞逛街。",
                 center: [35.0850, 129.0250], zoom: 13,
                 items: [
-                    { 
-                        time: "10:00", 
-                        title: "松島海上纜車", 
-                        desc: "飯店步行即達。建議搭乘「水晶車廂」俯瞰大海。", 
-                        type: "sight", 
-                        // 【特色圖】松島海上纜車 (跨海纜車)
-                        image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "11:30", 
-                        title: "EL16.52 Cafe", 
-                        desc: "纜車站旁絕美海景咖啡廳。", 
-                        type: "food", 
-                        // 海景咖啡廳內部/拿鐵
-                        image: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "移動", 
-                        title: "松島 ➔ 南浦洞", 
-                        desc: "短程移動，計程車最方便。", 
-                        price: "₩7,000", 
-                        type: "car", 
-                        icon: "fa-taxi" 
-                    },
-                    { 
-                        time: "13:30", 
-                        title: "南浦洞 & 札嘎其", 
-                        desc: "午餐推薦：札嘎其烤魚。下午逛 BIFF 廣場。", 
-                        type: "food", 
-                        // 韓國傳統市場/海鮮市場
-                        image: "https://images.unsplash.com/photo-1627993389028-2f87a82f349c?auto=format&fit=crop&w=800&q=80" 
-                    }
+                    { time: "10:00", title: "松島海上纜車", desc: "水晶車廂俯瞰大海。", price: "₩22,000", type: "sight", image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?auto=format&fit=crop&w=800&q=80" },
+                    { time: "11:30", title: "EL16.52 Cafe", desc: "海景咖啡廳。", price: "₩10,000", type: "food", image: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=800&q=80" },
+                    { time: "移動", title: "松島 ➔ 南浦洞", desc: "計程車。", price: "₩7,000", type: "car", icon: "fa-taxi" },
+                    { time: "13:30", title: "南浦洞 & 札嘎其", desc: "午餐烤魚與逛街。", price: "₩35,000", type: "food", image: "https://images.unsplash.com/photo-1627993389028-2f87a82f349c?auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             3: {
-                summary: "今日前往山坡景點，計程車是保留體力的必要投資。",
+                summary: "前往山坡景點，計程車是保留體力的必要投資。",
                 center: [35.0900, 129.0300], zoom: 13,
                 items: [
-                    { 
-                        time: "10:00", 
-                        title: "甘川洞文化村", 
-                        desc: "釜山的馬丘比丘。尋找小王子雕像。", 
-                        type: "sight", 
-                        // 【已更新】甘川洞經典彩色山坡房屋 (小王子眺望的景色)
-                        image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "移動", 
-                        title: "飯店 ➔ 甘川洞", 
-                        desc: "強烈建議計程車直達入口，省去爬坡。", 
-                        price: "₩6,500", 
-                        note: "公車需轉乘且大排長龍。", 
-                        type: "car", 
-                        icon: "fa-taxi" 
-                    },
-                    { 
-                        time: "14:00", 
-                        title: "白淺灘文化村", 
-                        desc: "沿著絕壁海岸線的白色村莊。", 
-                        type: "sight", 
-                        // 白淺灘/海邊白色圍牆
-                        image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80" 
-                    }
+                    { time: "移動", title: "飯店 ➔ 甘川洞", desc: "計程車直達入口。", price: "₩6,500", type: "car", icon: "fa-taxi" },
+                    { time: "10:00", title: "甘川洞文化村", desc: "尋找小王子雕像。", type: "sight", image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80" },
+                    { time: "14:00", title: "白淺灘文化村", desc: "海邊白色村莊。", type: "sight", image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80" },
+                    { time: "18:00", title: "錦繡河豚湯", desc: "米其林推薦。", price: "₩30,000", type: "food", icon: "fa-utensils" }
                 ]
             },
             4: {
-                summary: "今日距離最遠，前往海雲臺。提供舒適與省錢兩種方案。",
+                summary: "前往海雲臺，體驗膠囊列車。",
                 center: [35.1500, 129.1300], zoom: 12,
                 items: [
-                    {
-                        time: "移動", title: "飯店 ➔ 海雲臺", desc: "跨區移動方案比較", type: "comparison",
-                        options: [
-                            { name: "舒壓推薦", tag: "舒適", price: "₩28,000", details: "計程車直達，約 50 分鐘。", color: "text-indigo-400" },
-                            { name: "省錢方案", tag: "高CP", price: "₩6,000", details: "計程車至南浦站 ➔ 地鐵1號線 ➔ 西面轉2號線 ➔ 中洞站", color: "text-green-400" }
-                        ]
-                    },
-                    { 
-                        time: "11:00", 
-                        title: "天空膠囊列車", 
-                        desc: "務必提前2週預約 (尾浦出發)。", 
-                        type: "sight", 
-                        // 【已更新】海雲臺 天空膠囊列車 (彩色車廂特寫)
-                        image: "https://images.unsplash.com/photo-1685933069352-094115e58864?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "午餐", 
-                        title: "海木 (Haemok)", 
-                        desc: "海雲臺必吃鰻魚飯，建議先抽號碼牌。", 
-                        type: "food", 
-                        // 鰻魚飯/日式蓋飯
-                        image: "https://images.unsplash.com/photo-1580442151529-343f2f6e0e27?auto=format&fit=crop&w=800&q=80" 
-                    }
+                    { time: "移動", title: "飯店 ➔ 海雲臺", desc: "長途舒適移動。", price: "₩28,000", type: "car", icon: "fa-taxi" },
+                    { time: "11:00", title: "天空膠囊列車", desc: "需預約(尾浦出發)。", price: "₩35,000", type: "sight", image: "https://images.unsplash.com/photo-1685933069352-094115e58864?auto=format&fit=crop&w=800&q=80" },
+                    { time: "午餐", title: "海木 (Haemok)", desc: "必吃鰻魚飯。", price: "₩39,000", type: "food", image: "https://images.unsplash.com/photo-1580442151529-343f2f6e0e27?auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             5: {
-                summary: "享受飯店設施到最後一刻。退房後行李寄放櫃台。",
+                summary: "享受設施，完美賦歸。",
                 center: [35.0760, 129.0170], zoom: 14,
                 items: [
-                    { 
-                        time: "11:00", 
-                        title: "退房 & 寄放行李", 
-                        desc: "完美結算。松島公園散步。", 
-                        type: "hotel", 
-                        // 飯店大廳/Check out意象
-                        image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" 
-                    },
-                    { 
-                        time: "15:00", 
-                        title: "最後的海景咖啡", 
-                        desc: "飯店附近咖啡廳，整理心情。", 
-                        price: "₩25,000", 
-                        type: "food", 
-                        icon: "fa-mug-hot" 
-                    },
-                    { 
-                        time: "16:30", 
-                        title: "前往金海機場", 
-                        desc: "帶著滿滿的回憶賦歸。", 
-                        type: "transport", 
-                        // 飛機窗外晚霞/賦歸
-                        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" 
-                    }
+                    { time: "12:00", title: "松島公園", desc: "海景烤牛排骨。", price: "₩45,000", type: "food", image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=800&q=80" },
+                    { time: "15:00", title: "最後咖啡", desc: "整理心情。", price: "₩25,000", type: "food", icon: "fa-mug-hot" },
+                    { time: "16:30", title: "前往金海機場", desc: "Taxi ➔ 機場。", price: "₩25,000", type: "transport", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" }
                 ]
             }
         };
 
-        // 地圖初始化
+        // --- 全域變數 ---
         let map;
-        try {
-            map = L.map('map', { zoomControl: false }).setView([35.1000, 129.0300], 12);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '', maxZoom: 19
-            }).addTo(map);
+        let expenses = JSON.parse(localStorage.getItem('busan_v5_expenses')) || [];
+        let budgetChart;
+        let totalEstimatedBudget = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            switchDay(1);
+            calculateEstimate(); // 自動計算預算
+            initChart();
+            renderExpenses();
+            updateBudgetUI();
+        });
+
+        // --- 視圖切換 (Bottom Nav) ---
+        function switchMainView(view) {
+            const views = ['itinerary', 'budget'];
+            const header = document.getElementById('main-header');
             
-            // 標記飯店
-            const hotelIcon = L.divIcon({
-                className: 'custom-div-icon',
-                html: "<div style='background-color:#4f46e5; width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow:0 0 0 4px rgba(79, 70, 229, 0.4);'></div>",
-                iconSize: [20, 20]
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const nav = document.getElementById(`nav-${v}`);
+                if (v === view) {
+                    el.classList.remove('hidden');
+                    nav.classList.add('nav-active', 'text-indigo-600');
+                    nav.classList.remove('text-slate-400');
+                } else {
+                    el.classList.add('hidden');
+                    nav.classList.remove('nav-active', 'text-indigo-600');
+                    nav.classList.add('text-slate-400');
+                }
             });
-            L.marker([35.0788, 129.0180], {icon: hotelIcon}).addTo(map);
-        } catch (e) {
-            console.log("Map failed to load", e);
+
+            // 行程頁才顯示 Header
+            if (view === 'itinerary') header.classList.remove('hidden');
+            else header.classList.add('hidden');
+
+            // 修正地圖
+            if (view === 'itinerary' && map) setTimeout(() => map.invalidateSize(), 100);
+        }
+
+        // --- 預算自動計算邏輯 ---
+        function parsePrice(priceStr) {
+            if(!priceStr) return 0;
+            return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+        }
+
+        function calculateEstimate() {
+            let total = 0;
+            Object.values(tripData).forEach(day => {
+                day.items.forEach(item => {
+                    if (item.price) total += parsePrice(item.price);
+                });
+            });
+            totalEstimatedBudget = total;
+            // 更新 Header 與 財務儀表板
+            document.getElementById('header-total-budget').innerText = `₩ ${total.toLocaleString()}`;
+            document.getElementById('dash-estimate').innerText = total.toLocaleString();
+            updateBudgetUI();
+        }
+
+        // --- 地圖與行程邏輯 ---
+        function initMap() {
+            try {
+                map = L.map('map', { zoomControl: false }).setView([35.1000, 129.0300], 12);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '', maxZoom: 19
+                }).addTo(map);
+                const hotelIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: "<div style='background-color:#4f46e5; width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow:0 0 0 4px rgba(79, 70, 229, 0.4);'></div>",
+                    iconSize: [20, 20]
+                });
+                L.marker([35.0788, 129.0180], {icon: hotelIcon}).addTo(map);
+            } catch (e) { console.log("Map Error", e); }
         }
 
         function switchDay(day) {
-            // 1. 切換頁籤樣式
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('border-indigo-500', 'text-indigo-600');
                 btn.classList.add('border-transparent', 'text-gray-500');
             });
             document.getElementById(`tab-${day}`).classList.replace('border-transparent', 'border-indigo-500');
             document.getElementById(`tab-${day}`).classList.replace('text-gray-500', 'text-indigo-600');
-            
             document.getElementById('day-summary').textContent = tripData[day].summary;
 
             const container = document.getElementById('itinerary-content');
             container.innerHTML = ''; 
 
-            tripData[day].items.forEach((item, index) => {
+            tripData[day].items.forEach((item) => {
                 let cardHtml = '';
-                // 比較方案卡片 (Day 4)
-                if (item.type === 'comparison') {
-                    cardHtml = `
-                        <div class="bg-slate-800 text-white rounded-xl p-4 shadow-lg fade-in border border-slate-700">
-                            <h3 class="font-bold text-base mb-3 flex items-center"><i class="fa-solid fa-route text-yellow-400 mr-2"></i> ${item.title}</h3>
-                            <div class="space-y-3">
-                                ${item.options.map(opt => `
-                                    <div class="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                                        <div class="flex justify-between items-center mb-1">
-                                            <span class="font-bold text-sm ${opt.color}">${opt.name}</span>
-                                            <span class="bg-slate-600 text-white text-xs px-2 py-0.5 rounded">${opt.price}</span>
-                                        </div>
-                                        <p class="text-xs text-slate-300">${opt.details}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                } 
-                // 純文字/交通卡片 (沒有圖片)
-                else if (item.type === 'car' || (item.type === 'transport' && item.icon) || (item.type === 'food' && item.icon)) {
+                if (item.type === 'car' || (item.type === 'transport' && !item.image) || (item.type === 'food' && !item.image)) {
                     cardHtml = `
                         <div class="bg-white rounded-xl p-4 shadow-md flex items-start gap-3 fade-in border-l-4 border-slate-600">
                             <div class="flex-shrink-0 mt-1"><i class="fa-solid ${item.icon || 'fa-car'} text-lg text-slate-600"></i></div>
@@ -340,23 +338,14 @@
                                     ${item.price ? `<span class="bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded">${item.price}</span>` : ''}
                                 </div>
                                 <p class="text-gray-600 text-sm mt-1">${item.desc}</p>
-                                ${item.note ? `<p class="text-xs text-gray-400 mt-2 border-t border-gray-100 pt-2"><i class="fa-solid fa-info-circle mr-1"></i>${item.note}</p>` : ''}
                             </div>
                         </div>`;
-                } 
-                // 圖文卡片 (景點/餐廳/飯店)
-                else {
+                } else {
                     cardHtml = `
                         <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto group">
-                            ${item.image ? `
                             <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
-                                <img src="${item.image}" 
-                                     alt="${item.title}" 
-                                     class="absolute inset-0 w-full h-full object-cover"
-                                     loading="lazy"
-                                     onerror="this.onerror=null; this.src='${FALLBACK_IMAGE}';" 
-                                >
-                            </div>` : ''}
+                                <img src="${item.image || FALLBACK_IMAGE}" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGE}'">
+                            </div>
                             <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
                                 <div class="text-xs font-bold text-gray-400 mb-1">${item.time}</div>
                                 <h3 class="font-bold text-base text-slate-800 mb-1 truncate">${item.title}</h3>
@@ -368,45 +357,133 @@
                 container.insertAdjacentHTML('beforeend', cardHtml);
             });
 
-            // 2. 處理地圖移動
             if (map && tripData[day].center) {
                 const isMobileMapHidden = document.getElementById('mobile-map-container').classList.contains('hidden');
                 if (!isMobileMapHidden || window.innerWidth >= 768) {
-                    try {
-                        map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
-                    } catch(e) {}
+                    map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
                 }
             }
         }
 
-        // 手機版地圖切換
         function toggleMobileMap() {
             document.body.classList.toggle('mobile-map-active');
             const btnIcon = document.querySelector('#map-toggle-btn i');
-            
             if (document.body.classList.contains('mobile-map-active')) {
-                btnIcon.classList.remove('fa-map-location-dot');
-                btnIcon.classList.add('fa-list-ul'); 
-                
-                setTimeout(() => {
-                    if(map) {
-                        map.invalidateSize();
-                        const activeDayBtn = document.querySelector('.tab-btn.text-indigo-600');
-                        if(activeDayBtn) {
-                            const dayId = activeDayBtn.id.replace('tab-', '');
-                            if(tripData[dayId]) map.flyTo(tripData[dayId].center, tripData[dayId].zoom);
-                        }
-                    }
-                }, 100);
+                btnIcon.classList.replace('fa-map-location-dot', 'fa-list-ul');
+                setTimeout(() => map.invalidateSize(), 100);
             } else {
-                btnIcon.classList.remove('fa-list-ul');
-                btnIcon.classList.add('fa-map-location-dot'); 
+                btnIcon.classList.replace('fa-list-ul', 'fa-map-location-dot');
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            switchDay(1);
-        });
+        // --- 記帳與圖表邏輯 ---
+        function initChart() {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            budgetChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['美食', '交通', '購物', '門票', '住宿', '其他'],
+                    datasets: [{
+                        data: [0,0,0,0,0,0],
+                        backgroundColor: ['#f97316', '#3b82f6', '#ec4899', '#a855f7', '#6366f1', '#94a3b8'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } }
+                }
+            });
+        }
+
+        function openExpenseModal() {
+            document.getElementById('modal-expense').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-panel').classList.remove('translate-y-full'), 10);
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('modal-panel').classList.add('translate-y-full');
+            setTimeout(() => document.getElementById('modal-expense').classList.add('hidden'), 300);
+        }
+
+        function setCat(cat, btn) {
+            document.getElementById('input-cat').value = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200'));
+            btn.classList.add('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200');
+        }
+
+        function addExpense(e) {
+            e.preventDefault();
+            const cost = parseInt(document.getElementById('input-cost').value);
+            const name = document.getElementById('input-name').value;
+            const cat = document.getElementById('input-cat').value;
+            if (cost && name) {
+                expenses.push({ id: Date.now(), name, cost, cat });
+                localStorage.setItem('busan_v5_expenses', JSON.stringify(expenses));
+                renderExpenses();
+                updateBudgetUI();
+                closeExpenseModal();
+                // 清空輸入
+                document.getElementById('input-cost').value = '';
+                document.getElementById('input-name').value = '';
+            }
+        }
+
+        function renderExpenses() {
+            const list = document.getElementById('expense-list');
+            list.innerHTML = '';
+            if (expenses.length === 0) {
+                list.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">尚無消費紀錄</div>';
+                return;
+            }
+            expenses.slice().reverse().forEach(ex => {
+                const row = `
+                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 text-xs">
+                                ${getIcon(ex.cat)}
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm">${ex.name}</p>
+                            </div>
+                        </div>
+                        <div class="font-bold text-indigo-600 text-sm">₩${ex.cost.toLocaleString()}</div>
+                    </div>`;
+                list.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function updateBudgetUI() {
+            const spent = expenses.reduce((acc, curr) => acc + curr.cost, 0);
+            const remain = totalEstimatedBudget - spent;
+            
+            document.getElementById('dash-spent').innerText = spent.toLocaleString();
+            document.getElementById('dash-remain').innerText = remain.toLocaleString();
+            
+            if(remain < 0) document.getElementById('dash-remain').classList.replace('text-white', 'text-red-200');
+
+            // Chart
+            const cats = { food:0, transport:0, shopping:0, ticket:0, stay:0, other:0 };
+            expenses.forEach(e => { if(cats[e.cat] !== undefined) cats[e.cat] += e.cost; else cats.other += e.cost; });
+            budgetChart.data.datasets[0].data = Object.values(cats);
+            budgetChart.update();
+        }
+
+        function clearExpenses() {
+            if(confirm('確定清除所有記帳紀錄？')) {
+                expenses = [];
+                localStorage.setItem('busan_v5_expenses', JSON.stringify(expenses));
+                renderExpenses();
+                updateBudgetUI();
+            }
+        }
+
+        function getIcon(cat) {
+            const map = { food: '<i class="fa-solid fa-utensils"></i>', transport: '<i class="fa-solid fa-taxi"></i>', shopping: '<i class="fa-solid fa-bag-shopping"></i>', ticket: '<i class="fa-solid fa-ticket"></i>', stay: '<i class="fa-solid fa-bed"></i>', other: '<i class="fa-solid fa-circle"></i>' };
+            return map[cat] || map.other;
+        }
+
     </script>
 </body>
 </html>
