@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V35</title>
+    <title>Phyllis 釜山奢華策展 V36</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,8 +56,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V35</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 雙幣記帳版</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V36</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 財務修正版</p>
                 </div>
                 <div class="text-right">
                     <div class="text-[10px] text-gray-400 uppercase tracking-wide">Total Estimate</div>
@@ -103,7 +103,8 @@
                 <div id="map"></div>
                 <button onclick="openNaverMap()" class="nav-btn-fixed bg-white/95 backdrop-blur px-4 py-3 rounded-full text-sm font-bold text-slate-700 border border-gray-200 flex items-center gap-2 hover:bg-indigo-50 active:scale-95 transition-transform cursor-pointer">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Naver_Logo.svg/1200px-Naver_Logo.svg.png" class="w-4 h-4 object-contain">
-                    <span class="text-indigo-600">導航</span>
+                    <span class="text-indigo-600">即時導航</span>
+                    <i class="fa-solid fa-location-arrow text-gray-400 text-xs ml-1"></i>
                 </button>
             </div>
         </div>
@@ -174,12 +175,14 @@
         let currentType = 'food';
         let currentDayCenter = [35.0788, 129.0180]; 
 
-        // 預付項目清單 (ID改為 v35 避免快取衝突)
+        // V36 修正：
+        // 1. 加入 priceKRW 欄位 (支援韓元原價顯示)
+        // 2. 加入 type 欄位 (支援圓餅圖正確分類)
         const DEFAULT_PREPAID = [
-            { id: 'p1', title: "機票 (已付)", priceTWD: 8861, note: "華航來回" },
-            { id: 'p2', title: "住宿 (已付)", priceTWD: 14516, note: "Wyndham Grand 4晚" },
-            { id: 'p3', title: "膠囊列車 (已付)", priceTWD: 849, note: "Sky Capsule" },
-            { id: 'p4', title: "Arte Museum (已付)", priceTWD: 826, note: "KKday 2張" }
+            { id: 'p1', title: "華航機票 (已付)", priceTWD: 8861, priceKRW: null, type: 'transport', note: "TWD 刷卡" },
+            { id: 'p2', title: "溫德姆飯店 (現場付)", priceTWD: 14516, priceKRW: 659813, type: 'hotel', note: "現場刷卡" },
+            { id: 'p3', title: "膠囊列車 (已付)", priceTWD: 849, priceKRW: null, type: 'ticket', note: "KKday" },
+            { id: 'p4', title: "Arte Museum (已付)", priceTWD: 826, priceKRW: null, type: 'ticket', note: "KKday" }
         ];
 
         // 行程資料
@@ -346,9 +349,9 @@
 
         function getPrepaidExpenses() {
             try {
-                const stored = localStorage.getItem('busan_prepaid_v35');
+                const stored = localStorage.getItem('busan_prepaid_v36');
                 if (!stored) {
-                    localStorage.setItem('busan_prepaid_v35', JSON.stringify(DEFAULT_PREPAID));
+                    localStorage.setItem('busan_prepaid_v36', JSON.stringify(DEFAULT_PREPAID));
                     return DEFAULT_PREPAID;
                 }
                 return JSON.parse(stored);
@@ -356,24 +359,24 @@
         }
 
         function deletePrepaid(id) {
-            if(!confirm('確定要刪除這筆預付項目嗎？(刪除後可手動新增正確金額)')) return;
+            if(!confirm('確定要刪除這筆預付項目嗎？')) return;
             let list = getPrepaidExpenses();
             list = list.filter(item => item.id !== id);
-            localStorage.setItem('busan_prepaid_v35', JSON.stringify(list));
+            localStorage.setItem('busan_prepaid_v36', JSON.stringify(list));
             renderExpenses();
             updateChart();
         }
 
         function resetPrepaid() {
-            if(!confirm('確定要將預付項目恢復為預設值嗎？(會救回已刪除的預付項目)')) return;
-            localStorage.setItem('busan_prepaid_v35', JSON.stringify(DEFAULT_PREPAID));
+            if(!confirm('確定要將預付項目恢復為預設值嗎？')) return;
+            localStorage.setItem('busan_prepaid_v36', JSON.stringify(DEFAULT_PREPAID));
             renderExpenses();
             updateChart();
         }
 
         function getUserExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_user_expenses_v35')) || [];
+                return JSON.parse(localStorage.getItem('busan_user_expenses_v36')) || [];
             } catch { return []; }
         }
 
@@ -392,7 +395,7 @@
 
             const expenses = getUserExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_user_expenses_v35', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v36', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
@@ -403,14 +406,14 @@
             if(!confirm('確定刪除此筆新增的消費紀錄？')) return;
             let expenses = getUserExpenses();
             expenses = expenses.filter(ex => ex.id !== id);
-            localStorage.setItem('busan_user_expenses_v35', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v36', JSON.stringify(expenses));
             renderExpenses();
             updateChart();
         }
 
         function clearUserExpenses() {
-            if(!confirm('確定要清空記帳紀錄嗎？(預付項目將保留)')) return;
-            localStorage.removeItem('busan_user_expenses_v35');
+            if(!confirm('確定要清空記帳紀錄嗎？')) return;
+            localStorage.removeItem('busan_user_expenses_v36');
             renderExpenses();
             updateChart();
         }
@@ -423,6 +426,10 @@
 
             const prepaidHtml = prepaidList.map(item => {
                 totalTWD += item.priceTWD;
+                // V36: 顯示邏輯 (若有韓元則優先顯示，台幣為輔)
+                const mainPrice = item.priceKRW ? `₩${item.priceKRW.toLocaleString()}` : `NT$${item.priceTWD.toLocaleString()}`;
+                const subPrice = item.priceKRW ? `≈ NT$${item.priceTWD.toLocaleString()}` : item.note;
+
                 return `
                     <div class="px-4 py-3 flex justify-between items-center bg-indigo-50/50 border-b border-indigo-100 last:border-0 group">
                         <div class="flex items-center gap-3">
@@ -431,11 +438,11 @@
                             </div>
                             <div>
                                 <div class="font-bold text-gray-800 text-sm">${item.title}</div>
-                                <div class="text-xs text-indigo-500">${item.note}</div>
+                                <div class="text-xs text-indigo-500">${subPrice}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="font-bold text-indigo-600 text-sm">NT$${item.priceTWD.toLocaleString()}</div>
+                            <div class="font-bold text-indigo-600 text-sm">${mainPrice}</div>
                             <button onclick="deletePrepaid('${item.id}')" class="btn-delete text-gray-400 p-2" title="刪除此筆預付">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
@@ -488,10 +495,9 @@
             
             let dataMap = { 'food': 0, 'transport': 0, 'shopping': 0, 'hotel': 0, 'ticket': 0, 'other': 0 };
             
+            // V36: 使用明確的 type 欄位進行分類
             prepaidList.forEach(p => {
-                if(p.title.includes("住宿")) dataMap.hotel += p.priceTWD;
-                else if(p.title.includes("機票") || p.title.includes("交通")) dataMap.transport += p.priceTWD;
-                else if(p.title.includes("列車") || p.title.includes("門票") || p.title.includes("Museum")) dataMap.ticket += p.priceTWD;
+                if (dataMap[p.type] !== undefined) dataMap[p.type] += p.priceTWD;
                 else dataMap.other += p.priceTWD;
             });
 
