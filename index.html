@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V38</title>
+    <title>Phyllis 釜山奢華策展 V39</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,8 +56,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V38</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 視覺完美版</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V39</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 樂天光復版</p>
                 </div>
                 <div class="text-right">
                     <div class="text-[10px] text-gray-400 uppercase tracking-wide">Total Estimate</div>
@@ -83,7 +83,7 @@
             <div class="w-full md:w-[450px] flex flex-col bg-gray-50 z-20 shadow-xl md:border-r border-gray-200 h-[60%] md:h-full">
                 <div class="flex space-x-4 overflow-x-auto no-scrollbar p-3 bg-white border-b border-gray-200 shadow-sm flex-none">
                     <button onclick="updateDay(1)" class="day-btn active-day flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-bold bg-indigo-600 text-white transition-all" data-day="1">D1 抵達</button>
-                    <button onclick="updateDay(2)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="2">D2 藝文</button>
+                    <button onclick="updateDay(2)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="2">D2 樂天</button>
                     <button onclick="updateDay(3)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="3">D3 漫遊</button>
                     <button onclick="updateDay(4)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="4">D4 奢華</button>
                     <button onclick="updateDay(5)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="5">D5 賦歸</button>
@@ -175,7 +175,6 @@
         let currentType = 'food';
         let currentDayCenter = [35.0788, 129.0180]; 
 
-        // V38: 預付項目資料結構
         const DEFAULT_PREPAID = [
             { id: 'p1', title: "華航機票 (已付)", priceTWD: 8861, priceKRW: null, type: 'transport', note: "TWD 刷卡" },
             { id: 'p2', title: "溫德姆飯店 (現場付)", priceTWD: 14516, priceKRW: 659813, type: 'hotel', note: "現場刷卡" },
@@ -183,7 +182,6 @@
             { id: 'p4', title: "Arte Museum (已付)", priceTWD: 826, priceKRW: null, type: 'ticket', note: "KKday" }
         ];
 
-        // 行程資料
         const tripData = {
             1: {
                 summary: "Day 1: 專車直達飯店，海鮮自助餐犒賞自己。",
@@ -196,13 +194,15 @@
                 ]
             },
             2: {
-                summary: "Day 2: 松島漫步與影島藝文避寒。",
-                center: [35.0900, 129.0400],
-                zoom: 13,
+                summary: "Day 2: 松島、南浦洞美食與樂天百貨購物。",
+                center: [35.0960, 129.0350],
+                zoom: 14,
                 items: [
                     { time: "10:30", title: "松島海上纜車", desc: "步行即達。水晶車廂俯瞰大海。", price: "₩22,000 (≈NT$484)", type: "sight", image: "https://picsum.photos/seed/cable_car_ocean/800/600" },
-                    { time: "13:30", title: "Arte Museum", desc: "影島沉浸式藝術展，室內溫暖。", price: "已預付 NT$826", type: "sight", image: "https://picsum.photos/seed/arte_museum/800/600" },
-                    { time: "17:00", title: "札嘎其海鮮市場", desc: "晚餐推薦烤魚或生魚片。", price: "預估 ₩35,000 (≈NT$770)", type: "food", image: "https://picsum.photos/seed/korea_market_food/800/600" }
+                    { time: "12:30", title: "18號 雲吞麵", desc: "南浦洞老字號午餐，清爽美味。", price: "₩10,000 (≈NT$220)", type: "food", image: "https://picsum.photos/seed/wonton_noodle/800/600" },
+                    { time: "14:00", title: "樂天百貨 光復店", desc: "B1噴泉秀、頂樓觀景台、超市採買。", price: "預估 ₩50,000 (≈NT$1,100)", type: "shopping", icon: "fa-bag-shopping" },
+                    { time: "16:00", title: "Arte Museum", desc: "影島沉浸式藝術展，室內溫暖。", price: "已預付 NT$826", type: "sight", image: "https://picsum.photos/seed/arte_museum/800/600" },
+                    { time: "18:30", title: "漢陽豬腳", desc: "晚餐：富平洞豬腳一條街。", price: "₩40,000 (≈NT$880)", type: "food", image: "https://picsum.photos/seed/pork_trotters/800/600" }
                 ]
             },
             3: {
@@ -212,7 +212,7 @@
                 items: [
                     { time: "10:30", title: "甘川洞文化村", desc: "計程車直達「遊客中心」入口。", price: "車資 ₩7,000 (≈NT$154)", type: "sight", image: "https://picsum.photos/seed/gamcheon_village/800/600" },
                     { time: "14:30", title: "白淺灘文化村", desc: "絕美海景咖啡廳 (Aether Cafe)。", price: "午茶 ₩10,000 (≈NT$220)", type: "sight", image: "https://picsum.photos/seed/white_cliff_cafe/800/600" },
-                    { time: "18:00", title: "返回飯店休息", desc: "享受飯店設施。", type: "hotel", icon: "fa-bed" }
+                    { time: "18:00", title: "烤貝村", desc: "松島岩南公園晚餐。", price: "₩60,000 (≈NT$1,320)", type: "food", image: "https://picsum.photos/seed/grilled_shellfish/800/600" }
                 ]
             },
             4: {
@@ -347,9 +347,9 @@
 
         function getPrepaidExpenses() {
             try {
-                const stored = localStorage.getItem('busan_prepaid_v38');
+                const stored = localStorage.getItem('busan_prepaid_v39'); // Updated storage key for V39
                 if (!stored) {
-                    localStorage.setItem('busan_prepaid_v38', JSON.stringify(DEFAULT_PREPAID));
+                    localStorage.setItem('busan_prepaid_v39', JSON.stringify(DEFAULT_PREPAID));
                     return DEFAULT_PREPAID;
                 }
                 return JSON.parse(stored);
@@ -360,21 +360,21 @@
             if(!confirm('確定要刪除這筆預付項目嗎？')) return;
             let list = getPrepaidExpenses();
             list = list.filter(item => item.id !== id);
-            localStorage.setItem('busan_prepaid_v38', JSON.stringify(list));
+            localStorage.setItem('busan_prepaid_v39', JSON.stringify(list));
             renderExpenses();
             updateChart();
         }
 
         function resetPrepaid() {
             if(!confirm('確定要將預付項目恢復為預設值嗎？')) return;
-            localStorage.setItem('busan_prepaid_v38', JSON.stringify(DEFAULT_PREPAID));
+            localStorage.setItem('busan_prepaid_v39', JSON.stringify(DEFAULT_PREPAID));
             renderExpenses();
             updateChart();
         }
 
         function getUserExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_user_expenses_v38')) || [];
+                return JSON.parse(localStorage.getItem('busan_user_expenses_v39')) || []; // Updated storage key
             } catch { return []; }
         }
 
@@ -393,7 +393,7 @@
 
             const expenses = getUserExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_user_expenses_v38', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v39', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
@@ -404,19 +404,18 @@
             if(!confirm('確定刪除此筆新增的消費紀錄？')) return;
             let expenses = getUserExpenses();
             expenses = expenses.filter(ex => ex.id !== id);
-            localStorage.setItem('busan_user_expenses_v38', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v39', JSON.stringify(expenses));
             renderExpenses();
             updateChart();
         }
 
         function clearUserExpenses() {
             if(!confirm('確定要清空記帳紀錄嗎？')) return;
-            localStorage.removeItem('busan_user_expenses_v38');
+            localStorage.removeItem('busan_user_expenses_v39');
             renderExpenses();
             updateChart();
         }
 
-        // V38 新增：統一樣式產生器
         function getCategoryStyle(type) {
             switch(type) {
                 case 'transport': return { icon: 'fa-plane', color: 'text-blue-500', bg: 'bg-blue-100' };
@@ -437,7 +436,6 @@
             const prepaidHtml = prepaidList.map(item => {
                 totalTWD += item.priceTWD;
                 
-                // V38: 視覺統一邏輯
                 const style = getCategoryStyle(item.type);
                 const leftSub = item.priceKRW ? `₩${item.priceKRW.toLocaleString()}` : item.note;
                 const rightPrice = `NT$${item.priceTWD.toLocaleString()}`;
@@ -466,7 +464,6 @@
             const userHtml = userList.map(ex => {
                 totalTWD += ex.amountTWD;
                 
-                // V38: 視覺統一邏輯
                 const style = getCategoryStyle(ex.type);
                 
                 return `
