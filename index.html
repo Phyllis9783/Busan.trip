@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V30</title>
+    <title>Phyllis 釜山奢華策展 V31</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -53,6 +53,10 @@
         
         /* 預付項目樣式 */
         .prepaid-item { background-color: #f5f3ff; border-bottom: 1px solid #e0e7ff; }
+        
+        /* 刪除按鈕樣式 */
+        .btn-delete { opacity: 0.4; transition: all 0.2s; }
+        .btn-delete:hover { opacity: 1; color: #ef4444; transform: scale(1.1); }
     </style>
 </head>
 <body class="bg-gray-50 h-screen flex flex-col text-slate-800 overflow-hidden">
@@ -61,8 +65,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V30</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 最終完美版</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V31</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 記帳功能升級</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-400">總支出 (TWD)</div>
@@ -148,7 +152,7 @@
                 <div class="bg-white rounded-2xl shadow overflow-hidden">
                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                         <h3 class="text-sm font-bold text-gray-500">最近紀錄</h3>
-                        <button onclick="clearExpenses()" class="text-xs text-red-400 hover:text-red-600">清空</button>
+                        <button onclick="clearExpenses()" class="text-xs text-red-400 hover:text-red-600">全清</button>
                     </div>
                     <div id="expense-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto"></div>
                 </div>
@@ -167,7 +171,6 @@
 
         const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Image+Loading";
 
-        // V30: 完整預付清單 (含博物館門票)
         const PREPAID_EXPENSES = [
             { title: "華航機票來回 (Phyllis)", priceTWD: 8861, note: "已預付" },
             { title: "溫德姆飯店 (5天4夜)", priceTWD: Math.round(659813 * EXCHANGE_RATE), note: "₩659,813 (2人)" },
@@ -214,7 +217,6 @@
                     { time: "11:00", title: "出發前往海雲台", desc: "長途移動，車上補眠。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
                     { time: "12:00", title: "Rendeja-Vous", desc: "海雲台無敵海景咖啡，享用早午餐時光。", price: "₩15,000", type: "food", image: "https://picsum.photos/seed/beach_coffee/800/600" },
                     { time: "15:30", title: "天空膠囊列車", desc: "尾浦站出發。私人車廂，預約日落時段。", price: "已預付 NT$849", type: "sight", image: "https://picsum.photos/seed/train_ocean_view/800/600" },
-                    // [圖片更新] 種子更換為 tasty_dinner_grill
                     { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯，完美句點。", price: "₩38,000", type: "food", image: "https://picsum.photos/seed/tasty_dinner_grill/800/600" }
                 ]
             },
@@ -343,7 +345,7 @@
 
         function getExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_expenses_v29')) || [];
+                return JSON.parse(localStorage.getItem('busan_expenses_v31')) || [];
             } catch { return []; }
         }
 
@@ -362,16 +364,25 @@
 
             const expenses = getExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_expenses_v29', JSON.stringify(expenses));
+            localStorage.setItem('busan_expenses_v31', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
             updateChart();
         }
 
+        function deleteExpense(id) {
+            if(!confirm('確定刪除此筆紀錄？')) return;
+            let expenses = getExpenses();
+            expenses = expenses.filter(ex => ex.id !== id);
+            localStorage.setItem('busan_expenses_v31', JSON.stringify(expenses));
+            renderExpenses();
+            updateChart();
+        }
+
         function clearExpenses() {
-            if(confirm('確定要清空所有記帳紀錄嗎？')) {
-                localStorage.removeItem('busan_expenses_v29');
+            if(confirm('確定要清空所有自行輸入的記帳紀錄嗎？(預付項目不會被刪除)')) {
+                localStorage.removeItem('busan_expenses_v31');
                 renderExpenses();
                 updateChart();
             }
@@ -422,8 +433,13 @@
                                 <div class="text-xs text-gray-400">${ex.date}</div>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <div class="font-bold text-indigo-600">NT$${ex.amountTWD.toLocaleString()}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <div class="font-bold text-indigo-600">NT$${ex.amountTWD.toLocaleString()}</div>
+                            </div>
+                            <button onclick="deleteExpense(${ex.id})" class="btn-delete text-gray-400 p-2">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
                         </div>
                     </div>
                 `;
