@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V14</title>
+    <title>Phyllis 釜山奢華策展 V15</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,8 +56,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V14</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • Naver Map 連動</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V15</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 圖片修復版</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-400">總支出 (TWD)</div>
@@ -160,9 +160,12 @@
         let activeMarker = null;
         let budgetChart = null;
         let currentType = 'food';
-        let currentDayCenter = [35.0788, 129.0180]; // 預設中心 (Wyndham)
+        let currentDayCenter = [35.0788, 129.0180]; 
 
-        // 行程資料庫 (使用修復後的圖片連結)
+        // 圖片載入失敗的替代圖 (Fail-safe)
+        const FALLBACK_IMAGE = "https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Available";
+
+        // 行程資料庫 (更新為高穩定性的 Unsplash 連結)
         const tripData = {
             1: {
                 summary: "Day 1: 專車直達飯店，享受海鮮自助餐，保留體力。",
@@ -170,7 +173,8 @@
                 zoom: 14,
                 items: [
                     { time: "16:00", title: "金海機場 (PUS)", desc: "領行李、換匯。直接搭計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" },
-                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景放鬆。", type: "hotel", image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=600&q=80" },
+                    // Wyndham 飯店：使用高品質飯店窗景圖
+                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景放鬆。", type: "hotel", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
                     { time: "19:00", title: "The Bridge", desc: "飯店豪華海鮮自助餐，不用出門。", price: "₩110,000", type: "food", icon: "fa-utensils" }
                 ]
             },
@@ -179,10 +183,12 @@
                 center: [35.0850, 129.0250],
                 zoom: 13,
                 items: [
-                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。推薦搭乘水晶車廂。", price: "₩22,000", type: "sight", image: "https://images.unsplash.com/photo-1695640236395-580798721473?auto=format&fit=crop&w=600&q=80" },
+                    // 松島纜車：使用清晰的海上纜車圖
+                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。推薦搭乘水晶車廂。", price: "₩22,000", type: "sight", image: "https://images.unsplash.com/photo-1534234828569-16d22b0f4496?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
                     { time: "12:00", title: "EL16.52 Cafe", desc: "絕美海景咖啡廳，稍作休息。", price: "₩10,000", type: "food", icon: "fa-mug-hot" },
                     { time: "13:30", title: "移動至南浦洞", desc: "計程車前往，省時省力。", price: "約 ₩8,000", type: "transport", icon: "fa-taxi" },
-                    { time: "14:00", title: "札嘎其市場", desc: "體驗釜山海鮮文化。", price: "₩30,000", type: "food", image: "https://images.unsplash.com/photo-1572569502758-297f08d531a7?auto=format&fit=crop&w=600&q=80" }
+                    // 札嘎其市場：使用市場海鮮氛圍圖
+                    { time: "14:00", title: "札嘎其市場", desc: "體驗釜山海鮮文化。", price: "₩30,000", type: "food", image: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             3: {
@@ -190,8 +196,10 @@
                 center: [35.0975, 129.0106],
                 zoom: 13,
                 items: [
-                    { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://images.unsplash.com/photo-1596417770176-d39b03ae2803?auto=format&fit=crop&w=600&q=80" },
-                    { time: "14:00", title: "白淺灘文化村", desc: "絕壁上的白色村莊，很多好拍的咖啡廳。", type: "sight", image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=600&q=80" },
+                    // 甘川洞：使用經典彩色房屋圖
+                    { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://images.unsplash.com/photo-1596417770176-d39b03ae2803?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+                    // 白淺灘：使用白色濱海建築圖 (Santorini vibe)
+                    { time: "14:00", title: "白淺灘文化村", desc: "絕壁上的白色村莊，很多好拍的咖啡廳。", type: "sight", image: "https://images.unsplash.com/photo-1598448777977-1c5c56d77327?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
                     { time: "18:00", title: "返回飯店", desc: "晚餐於松島附近享用。", type: "hotel", icon: "fa-bed" }
                 ]
             },
@@ -201,8 +209,10 @@
                 zoom: 12,
                 items: [
                     { time: "14:00", title: "前往尾浦站", desc: "長途計程車 (約45分)，舒適移動。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
-                    { time: "15:30", title: "天空膠囊列車", desc: "預約時段 (尾浦出發)。私人車廂。", price: "已預付 NT$849", type: "sight", image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=600&q=80" },
-                    { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯。", price: "₩38,000", type: "food", image: "https://images.unsplash.com/photo-1560159752-d6d7c4b0d355?auto=format&fit=crop&w=600&q=80" }
+                    // 天空膠囊：使用濱海鐵道圖 (最接近膠囊列車氛圍的圖)
+                    { time: "15:30", title: "天空膠囊列車", desc: "預約時段 (尾浦出發)。私人車廂。", price: "已預付 NT$849", type: "sight", image: "https://images.unsplash.com/photo-1544473343-29c8e8d89311?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
+                    // 鰻魚飯：使用日式/韓式魚料理圖
+                    { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯。", price: "₩38,000", type: "food", image: "https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             5: {
@@ -211,7 +221,8 @@
                 zoom: 14,
                 items: [
                     { time: "11:00", title: "退房 & 寄放行李", desc: "享受最後的海景。", type: "hotel", icon: "fa-suitcase" },
-                    { time: "12:30", title: "松島公園", desc: "頂級牛排骨午間套餐。", price: "₩35,000", type: "food", image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80" },
+                    // 松島公園烤肉：使用高品質燒肉圖
+                    { time: "12:30", title: "松島公園", desc: "頂級牛排骨午間套餐。", price: "₩35,000", type: "food", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
                     { time: "16:30", title: "前往機場", desc: "搭乘計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" }
                 ]
             }
@@ -220,40 +231,27 @@
         // --- 邏輯功能 ---
         
         function init() {
-            // 初始化地圖
             map = L.map('map', { zoomControl: false }).setView(tripData[1].center, tripData[1].zoom);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: 'OpenStreetMap'
             }).addTo(map);
 
-            // 預設載入 Day 1
             updateDay(1);
-            
-            // 載入記帳資料
             renderExpenses();
             updateChart();
         }
 
-        // 觸發 Naver Map
         function openNaverMap() {
             if (!currentDayCenter) return;
             const lat = currentDayCenter[0];
             const lng = currentDayCenter[1];
-            
-            // 構建 Naver Map 網頁版連結 (Web fallback)
-            // 使用參數 c=lng,lat,zoom,0,0,0,dh 開啟地圖並定位
             const naverUrl = `https://map.naver.com/v5/?c=${lng},${lat},15,0,0,0,dh`;
-            
-            // 開啟新視窗
             window.open(naverUrl, '_blank');
         }
 
-        // 切換天數
         function updateDay(day) {
-            // 更新目前中心點，供導航使用
             currentDayCenter = tripData[day].center;
 
-            // UI 更新
             document.querySelectorAll('.day-btn').forEach(b => {
                 b.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
                 b.classList.add('text-gray-600', 'hover:bg-gray-100');
@@ -264,10 +262,8 @@
 
             document.getElementById('day-summary').innerText = tripData[day].summary;
 
-            // 地圖飛越
             map.flyTo(tripData[day].center, tripData[day].zoom, { duration: 1.5 });
             
-            // 清除舊標記
             if(activeMarker) map.removeLayer(activeMarker);
             const icon = L.divIcon({
                 className: 'custom-div-icon',
@@ -276,14 +272,15 @@
             });
             activeMarker = L.marker(tripData[day].center, {icon: icon}).addTo(map);
 
-            // 渲染列表
             const list = document.getElementById('itinerary-list');
             list.innerHTML = '';
             tripData[day].items.forEach((item, idx) => {
                 const isImageCard = !!item.image;
                 const html = `
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden fade-in flex ${isImageCard ? 'flex-col sm:flex-row' : 'flex-row items-center'} gap-3 p-3" style="animation-delay: ${idx * 0.1}s">
-                        ${isImageCard ? `<div class="h-32 sm:w-28 sm:h-auto bg-gray-200 flex-shrink-0 relative"><img src="${item.image}" class="absolute inset-0 w-full h-full object-cover"></div>` : 
+                        ${isImageCard ? `<div class="h-32 sm:w-28 sm:h-auto bg-gray-200 flex-shrink-0 relative">
+                            <img src="${item.image}" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGE}'; this.onerror=null;">
+                        </div>` : 
                         `<div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><i class="fa-solid ${item.icon}"></i></div>`}
                         
                         <div class="flex-1 min-w-0">
@@ -300,7 +297,6 @@
             });
         }
 
-        // 切換主分頁
         function switchMainTab(tab) {
             const itineraryEl = document.getElementById('tab-itinerary');
             const financeEl = document.getElementById('tab-finance');
@@ -332,8 +328,6 @@
             }
         }
 
-        // --- 財務功能 ---
-
         function setExpenseType(type) {
             currentType = type;
             document.querySelectorAll('.type-btn').forEach(btn => {
@@ -349,7 +343,7 @@
 
         function getExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_expenses_v14')) || [];
+                return JSON.parse(localStorage.getItem('busan_expenses_v15')) || [];
             } catch { return []; }
         }
 
@@ -368,7 +362,7 @@
 
             const expenses = getExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_expenses_v14', JSON.stringify(expenses));
+            localStorage.setItem('busan_expenses_v15', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
@@ -377,7 +371,7 @@
 
         function clearExpenses() {
             if(confirm('確定要清空所有記帳紀錄嗎？')) {
-                localStorage.removeItem('busan_expenses_v14');
+                localStorage.removeItem('busan_expenses_v15');
                 renderExpenses();
                 updateChart();
             }
@@ -415,7 +409,6 @@
                 `;
             }).join('');
 
-            // 更新總金額 (含預付票券 849)
             const grandTotal = totalTWD + 849;
             document.getElementById('header-total').innerText = grandTotal.toLocaleString();
             document.getElementById('chart-total').innerText = "NT$" + grandTotal.toLocaleString();
