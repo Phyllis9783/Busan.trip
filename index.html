@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V23</title>
+    <title>Phyllis 釜山奢華策展 V24</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,15 +34,12 @@
             background: #fff; position: absolute; border-radius: 50%;
         }
 
-        /* V23 修復重點：
-           使用 fixed 定位確保不被容器裁切，
-           bottom-20 (5rem) 確保避開手機瀏覽器的底部工具列
-        */
+        /* 導航按鈕：強制置頂 + 中文優化 */
         .nav-btn-fixed {
             position: fixed;
-            bottom: 5rem; /* bottom-20 */
-            right: 1rem;  /* right-4 */
-            z-index: 9999;
+            bottom: 5rem; /* 避開手機底部安全區 */
+            right: 1rem;
+            z-index: 9999 !important;
             animation: pulse-border 2s infinite;
         }
 
@@ -61,8 +58,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V23</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 影島動線最佳化</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V24</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 定稿版</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-400">總支出 (TWD)</div>
@@ -109,7 +106,7 @@
                 
                 <button onclick="openNaverMap()" class="nav-btn-fixed bg-white/95 backdrop-blur px-4 py-3 rounded-full shadow-2xl text-sm font-bold text-slate-700 border border-gray-200 flex items-center gap-2 hover:bg-indigo-50 active:scale-95 transition-transform cursor-pointer">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Naver_Logo.svg/1200px-Naver_Logo.svg.png" class="w-4 h-4 object-contain">
-                    <span class="text-indigo-600">Naver Map</span>
+                    <span class="text-indigo-600">即時導航</span>
                     <i class="fa-solid fa-location-arrow text-gray-400 text-xs"></i>
                 </button>
             </div>
@@ -165,10 +162,10 @@
         let currentType = 'food';
         let currentDayCenter = [35.0788, 129.0180]; 
 
-        // Picsum Seed 穩定圖源
+        // 穩定圖源
         const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Image+Loading";
 
-        // V23 行程數據：Arte Museum 移至 Day 3，動線最佳化
+        // V24 定稿資料
         const tripData = {
             1: {
                 summary: "Day 1: 專車直達飯店，享受海鮮自助餐，保留體力。",
@@ -193,14 +190,14 @@
             },
             3: {
                 summary: "Day 3: 影島藝術與自然。甘川洞 -> 沉浸式藝術 -> 白淺灘。",
-                center: [35.0900, 129.0400], // 影島中心
+                center: [35.0900, 129.0400], 
                 zoom: 13,
                 items: [
-                    // AM: 甘川洞 (走路)
+                    // AM: 甘川洞
                     { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://picsum.photos/seed/colorful_village/800/600" },
-                    // Noon: Arte Museum (室內休息/看展/避暑避寒) - 完美中繼點
-                    { time: "13:00", title: "Arte Museum Busan", desc: "影島最新開幕！震撼光影藝術，讓雙腳休息。", price: "₩17,000", type: "sight", image: "https://picsum.photos/seed/immersive_art/800/600" },
-                    // PM: 白淺灘 (走路/夕陽)
+                    // Noon: Arte Museum (確認為影島之沉浸式藝術)
+                    { time: "13:00", title: "Arte Museum Busan", desc: "影島最新！震撼沉浸式光影藝術，讓雙腳休息。", price: "₩17,000", type: "sight", image: "https://picsum.photos/seed/immersive_art/800/600" },
+                    // PM: 白淺灘
                     { time: "15:30", title: "白淺灘文化村", desc: "移動至附近的白淺灘，絕美海濱步道與咖啡。", type: "sight", image: "https://picsum.photos/seed/white_cliff_sea/800/600" },
                     { time: "18:00", title: "返回飯店", desc: "晚餐於松島附近享用。", type: "hotel", icon: "fa-bed" }
                 ]
@@ -344,7 +341,7 @@
 
         function getExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_expenses_v23')) || [];
+                return JSON.parse(localStorage.getItem('busan_expenses_v24')) || [];
             } catch { return []; }
         }
 
@@ -363,7 +360,7 @@
 
             const expenses = getExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_expenses_v23', JSON.stringify(expenses));
+            localStorage.setItem('busan_expenses_v24', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
@@ -372,7 +369,7 @@
 
         function clearExpenses() {
             if(confirm('確定要清空所有記帳紀錄嗎？')) {
-                localStorage.removeItem('busan_expenses_v23');
+                localStorage.removeItem('busan_expenses_v24');
                 renderExpenses();
                 updateChart();
             }
