@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V31</title>
+    <title>Phyllis 釜山奢華策展 V32</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,7 +34,6 @@
             background: #fff; position: absolute; border-radius: 50%;
         }
 
-        /* 導航按鈕強制置頂 */
         .nav-btn-fixed {
             position: fixed;
             bottom: 5rem;
@@ -51,12 +50,17 @@
 
         .img-container { background-color: #e2e8f0; }
         
-        /* 預付項目樣式 */
         .prepaid-item { background-color: #f5f3ff; border-bottom: 1px solid #e0e7ff; }
         
-        /* 刪除按鈕樣式 */
-        .btn-delete { opacity: 0.4; transition: all 0.2s; }
+        .btn-delete { opacity: 0.4; transition: all 0.2s; cursor: pointer; }
         .btn-delete:hover { opacity: 1; color: #ef4444; transform: scale(1.1); }
+
+        /* 分類按鈕網格優化 */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 h-screen flex flex-col text-slate-800 overflow-hidden">
@@ -65,8 +69,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V31</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 記帳功能升級</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V32</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 六大精準分類</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-400">總支出 (TWD)</div>
@@ -127,14 +131,18 @@
                     <div class="flex gap-2 mb-3">
                         <input type="number" id="expense-amount" placeholder="輸入韓元金額" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') this.blur()">
                     </div>
-                    <div class="grid grid-cols-4 gap-2 mb-3">
+                    
+                    <div class="category-grid mb-3">
                         <button onclick="setExpenseType('food')" class="type-btn active p-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-600 text-xs font-bold flex flex-col items-center gap-1" data-type="food"><i class="fa-solid fa-utensils"></i> 餐飲</button>
                         <button onclick="setExpenseType('transport')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="transport"><i class="fa-solid fa-taxi"></i> 交通</button>
                         <button onclick="setExpenseType('shopping')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="shopping"><i class="fa-solid fa-bag-shopping"></i> 購物</button>
-                        <button onclick="setExpenseType('other')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="other"><i class="fa-solid fa-ticket"></i> 其他</button>
+                        <button onclick="setExpenseType('hotel')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="hotel"><i class="fa-solid fa-bed"></i> 住宿</button>
+                        <button onclick="setExpenseType('ticket')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="ticket"><i class="fa-solid fa-ticket"></i> 門票</button>
+                        <button onclick="setExpenseType('other')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="other"><i class="fa-solid fa-ellipsis"></i> 其他</button>
                     </div>
+
                     <button onclick="addExpense()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center">
-                        <i class="fa-solid fa-plus mr-2"></i> 記錄這筆消費
+                        <i class="fa-solid fa-plus mr-2"></i> 新增消費
                     </button>
                 </div>
 
@@ -152,7 +160,10 @@
                 <div class="bg-white rounded-2xl shadow overflow-hidden">
                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                         <h3 class="text-sm font-bold text-gray-500">最近紀錄</h3>
-                        <button onclick="clearExpenses()" class="text-xs text-red-400 hover:text-red-600">全清</button>
+                        <div class="flex gap-2">
+                            <button onclick="resetPrepaid()" class="text-xs text-indigo-400 hover:text-indigo-600">重置預付</button>
+                            <button onclick="clearUserExpenses()" class="text-xs text-red-400 hover:text-red-600">清空記帳</button>
+                        </div>
                     </div>
                     <div id="expense-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto"></div>
                 </div>
@@ -171,11 +182,13 @@
 
         const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Image+Loading";
 
-        const PREPAID_EXPENSES = [
-            { title: "華航機票來回 (Phyllis)", priceTWD: 8861, note: "已預付" },
-            { title: "溫德姆飯店 (5天4夜)", priceTWD: Math.round(659813 * EXCHANGE_RATE), note: "₩659,813 (2人)" },
-            { title: "天空膠囊列車 (1車2人)", priceTWD: 849, note: "已預付" },
-            { title: "Arte Museum 門票 (2張)", priceTWD: 826, note: "已預付 (KKday)" }
+        // V32: 預付項目 (支援 ID 刪除與自動分類)
+        // 類別透過文字邏輯判斷，無需寫死 type，讓顯示更靈活
+        const DEFAULT_PREPAID = [
+            { id: 'p1', title: "華航機票來回 (Phyllis)", priceTWD: 8861, note: "已預付" },
+            { id: 'p2', title: "溫德姆飯店 (5天4夜)", priceTWD: Math.round(659813 * EXCHANGE_RATE), note: "₩659,813 (2人)" },
+            { id: 'p3', title: "天空膠囊列車 (1車2人)", priceTWD: 849, note: "已預付" },
+            { id: 'p4', title: "Arte Museum 門票 (2張)", priceTWD: 826, note: "已預付 (KKday)" }
         ];
 
         const tripData = {
@@ -343,9 +356,38 @@
             });
         }
 
-        function getExpenses() {
+        // --- 預付記帳管理 ---
+        function getPrepaidExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_expenses_v31')) || [];
+                const stored = localStorage.getItem('busan_prepaid_v32');
+                if (!stored) {
+                    localStorage.setItem('busan_prepaid_v32', JSON.stringify(DEFAULT_PREPAID));
+                    return DEFAULT_PREPAID;
+                }
+                return JSON.parse(stored);
+            } catch { return DEFAULT_PREPAID; }
+        }
+
+        function deletePrepaid(id) {
+            if(!confirm('確定要刪除這筆預付項目嗎？(刪除後可手動新增正確金額)')) return;
+            let list = getPrepaidExpenses();
+            list = list.filter(item => item.id !== id);
+            localStorage.setItem('busan_prepaid_v32', JSON.stringify(list));
+            renderExpenses();
+            updateChart();
+        }
+
+        function resetPrepaid() {
+            if(!confirm('確定要將預付項目恢復為預設值嗎？')) return;
+            localStorage.setItem('busan_prepaid_v32', JSON.stringify(DEFAULT_PREPAID));
+            renderExpenses();
+            updateChart();
+        }
+
+        // --- 使用者記帳管理 ---
+        function getUserExpenses() {
+            try {
+                return JSON.parse(localStorage.getItem('busan_user_expenses_v32')) || [];
             } catch { return []; }
         }
 
@@ -362,41 +404,41 @@
                 date: new Date().toLocaleDateString()
             };
 
-            const expenses = getExpenses();
+            const expenses = getUserExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_expenses_v31', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v32', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
             updateChart();
         }
 
-        function deleteExpense(id) {
-            if(!confirm('確定刪除此筆紀錄？')) return;
-            let expenses = getExpenses();
+        function deleteUserExpense(id) {
+            if(!confirm('確定刪除此筆新增的消費紀錄？')) return;
+            let expenses = getUserExpenses();
             expenses = expenses.filter(ex => ex.id !== id);
-            localStorage.setItem('busan_expenses_v31', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v32', JSON.stringify(expenses));
             renderExpenses();
             updateChart();
         }
 
-        function clearExpenses() {
-            if(confirm('確定要清空所有自行輸入的記帳紀錄嗎？(預付項目不會被刪除)')) {
-                localStorage.removeItem('busan_expenses_v31');
-                renderExpenses();
-                updateChart();
-            }
+        function clearUserExpenses() {
+            if(!confirm('確定要清空所有自行輸入的記帳紀錄嗎？(預付項目不會被刪除)')) return;
+            localStorage.removeItem('busan_user_expenses_v32');
+            renderExpenses();
+            updateChart();
         }
 
         function renderExpenses() {
             const list = document.getElementById('expense-list');
-            const userExpenses = getExpenses();
+            const prepaidList = getPrepaidExpenses();
+            const userList = getUserExpenses();
             let totalTWD = 0;
 
-            const prepaidHtml = PREPAID_EXPENSES.map(item => {
+            const prepaidHtml = prepaidList.map(item => {
                 totalTWD += item.priceTWD;
                 return `
-                    <div class="px-4 py-3 flex justify-between items-center prepaid-item">
+                    <div class="px-4 py-3 flex justify-between items-center prepaid-item group">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm">
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -406,14 +448,19 @@
                                 <div class="text-xs text-indigo-600 font-medium">${item.note}</div>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <div class="font-bold text-indigo-600">NT$${item.priceTWD.toLocaleString()}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <div class="font-bold text-indigo-600">NT$${item.priceTWD.toLocaleString()}</div>
+                            </div>
+                            <button onclick="deletePrepaid('${item.id}')" class="btn-delete text-gray-400 p-2" title="刪除此筆預付">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            const userHtml = userExpenses.map(ex => {
+            const userHtml = userList.map(ex => {
                 totalTWD += ex.amountTWD;
                 let iconClass = 'fa-circle-question';
                 let colorClass = 'text-gray-500';
@@ -421,6 +468,8 @@
                 if(ex.type === 'food') { iconClass = 'fa-utensils'; colorClass = 'text-orange-500'; }
                 if(ex.type === 'transport') { iconClass = 'fa-taxi'; colorClass = 'text-blue-500'; }
                 if(ex.type === 'shopping') { iconClass = 'fa-bag-shopping'; colorClass = 'text-pink-500'; }
+                if(ex.type === 'hotel') { iconClass = 'fa-bed'; colorClass = 'text-indigo-500'; }
+                if(ex.type === 'ticket') { iconClass = 'fa-ticket'; colorClass = 'text-teal-500'; } // 新增門票圖示
                 
                 return `
                     <div class="px-4 py-3 flex justify-between items-center group border-b border-gray-50 last:border-0">
@@ -437,7 +486,7 @@
                             <div class="text-right">
                                 <div class="font-bold text-indigo-600">NT$${ex.amountTWD.toLocaleString()}</div>
                             </div>
-                            <button onclick="deleteExpense(${ex.id})" class="btn-delete text-gray-400 p-2">
+                            <button onclick="deleteUserExpense(${ex.id})" class="btn-delete text-gray-400 p-2" title="刪除此筆紀錄">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
@@ -453,29 +502,38 @@
 
         function updateChart() {
             const ctx = document.getElementById('budgetChart').getContext('2d');
-            const expenses = getExpenses();
+            const prepaidList = getPrepaidExpenses();
+            const userList = getUserExpenses();
             
-            let prepaidTotal = 0;
-            PREPAID_EXPENSES.forEach(p => prepaidTotal += p.priceTWD);
+            // 完整分類統計
+            let dataMap = { 'food': 0, 'transport': 0, 'shopping': 0, 'hotel': 0, 'ticket': 0, 'other': 0 }; 
 
-            const dataMap = { 'food': 0, 'transport': 0, 'shopping': 0, 'other': prepaidTotal }; 
+            // 預付項目自動分類邏輯
+            prepaidList.forEach(p => {
+                const t = p.title;
+                if(t.includes("機票") || t.includes("列車") || t.includes("Taxi")) dataMap['transport'] += p.priceTWD;
+                else if(t.includes("飯店") || t.includes("住宿")) dataMap['hotel'] += p.priceTWD;
+                else if(t.includes("門票") || t.includes("Museum") || t.includes("Pass")) dataMap['ticket'] += p.priceTWD;
+                else dataMap['other'] += p.priceTWD;
+            });
             
-            expenses.forEach(ex => {
+            userList.forEach(ex => {
                 if (dataMap[ex.type] !== undefined) dataMap[ex.type] += ex.amountTWD;
                 else dataMap['other'] += ex.amountTWD;
             });
 
-            const dataValues = [dataMap.food, dataMap.transport, dataMap.shopping, dataMap.other];
+            const dataValues = [dataMap.food, dataMap.transport, dataMap.shopping, dataMap.hotel, dataMap.ticket, dataMap.other];
 
             if (budgetChart) budgetChart.destroy();
 
             budgetChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['餐飲', '交通', '購物', '其他(含預付)'],
+                    labels: ['餐飲', '交通', '購物', '住宿', '門票', '其他'],
                     datasets: [{
                         data: dataValues,
-                        backgroundColor: ['#f97316', '#3b82f6', '#ec4899', '#64748b'],
+                        // 對應顏色：橘、藍、粉、紫靛、青綠、灰
+                        backgroundColor: ['#f97316', '#3b82f6', '#ec4899', '#6366f1', '#14b8a6', '#64748b'],
                         borderWidth: 0,
                         hoverOffset: 4
                     }]
