@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V18</title>
+    <title>Phyllis 釜山奢華策展 </title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,8 +49,8 @@
             100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
         }
 
-        /* 圖片容器優化：確保比例固定 */
-        .img-container { background-color: #cbd5e1; }
+        /* 圖片容器優化 */
+        .img-container { background-color: #f3f4f6; }
     </style>
 </head>
 <body class="bg-gray-50 h-screen flex flex-col text-slate-800 overflow-hidden">
@@ -59,8 +59,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V18</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 絕對顯示版</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V20</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 美術館+導航修復</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-400">總支出 (TWD)</div>
@@ -165,8 +165,10 @@
         let currentType = 'food';
         let currentDayCenter = [35.0788, 129.0180]; 
 
-        // --- 核心行程資料 (V18 Wikimedia 穩定圖源版) ---
-        // 使用 Wikimedia Commons 連結，這是網路上最不容易失效的公開圖庫
+        // 絕對保險的替代圖 (高對比色塊)
+        const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Image+Loading";
+
+        // --- 核心行程資料 (V20: Unsplash ID + 美術館 + Naver Map) ---
         const tripData = {
             1: {
                 summary: "Day 1: 專車直達飯店，享受海鮮自助餐，保留體力。",
@@ -174,8 +176,8 @@
                 zoom: 14,
                 items: [
                     { time: "16:00", title: "金海機場 (PUS)", desc: "領行李、換匯。直接搭計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" },
-                    // 釜山夜景 (代表飯店景觀)
-                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景放鬆。", type: "hotel", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Busan_Tower_and_Downtown_Busan.jpg/640px-Busan_Tower_and_Downtown_Busan.jpg" },
+                    // Wyndham 飯店海景
+                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景放鬆。", type: "hotel", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" },
                     { time: "19:00", title: "The Bridge", desc: "飯店豪華海鮮自助餐，不用出門。", price: "₩110,000", type: "food", icon: "fa-utensils" }
                 ]
             },
@@ -184,12 +186,12 @@
                 center: [35.0850, 129.0250],
                 zoom: 13,
                 items: [
-                    // 松島海上纜車 (Wikimedia)
-                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。推薦搭乘水晶車廂。", price: "₩22,000", type: "sight", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Songdo_Marine_Cable_Car_01.jpg/640px-Songdo_Marine_Cable_Car_01.jpg" },
+                    // 松島海岸
+                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。推薦搭乘水晶車廂。", price: "₩22,000", type: "sight", image: "https://images.unsplash.com/photo-1596417770176-d39b03ae2803?auto=format&fit=crop&w=800&q=80" },
                     { time: "12:00", title: "EL16.52 Cafe", desc: "絕美海景咖啡廳，稍作休息。", price: "₩10,000", type: "food", icon: "fa-mug-hot" },
                     { time: "13:30", title: "移動至南浦洞", desc: "計程車前往，省時省力。", price: "約 ₩8,000", type: "transport", icon: "fa-taxi" },
-                    // 札嘎其市場 (Wikimedia)
-                    { time: "14:00", title: "札嘎其市場", desc: "體驗釜山海鮮文化。", price: "₩30,000", type: "food", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Jagalchi_Fish_Market_October_2012.jpg/640px-Jagalchi_Fish_Market_October_2012.jpg" }
+                    // 札嘎其市場
+                    { time: "14:00", title: "札嘎其市場", desc: "體驗釜山海鮮文化。", price: "₩30,000", type: "food", image: "https://images.unsplash.com/photo-1534483509719-3feaee7c30da?auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             3: {
@@ -197,23 +199,27 @@
                 center: [35.0975, 129.0106],
                 zoom: 13,
                 items: [
-                    // 甘川洞文化村 (Wikimedia)
-                    { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Gamcheon_Culture_Village.jpg/640px-Gamcheon_Culture_Village.jpg" },
-                    // 釜山海岸 (代表白淺灘/二妓臺氛圍)
-                    { time: "14:00", title: "白淺灘文化村", desc: "絕壁上的白色村莊，很多好拍的咖啡廳。", type: "sight", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Oryukdo_Skywalk.jpg/640px-Oryukdo_Skywalk.jpg" },
+                    // 甘川洞
+                    { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://images.unsplash.com/photo-1701314343166-7b565a44840d?auto=format&fit=crop&w=800&q=80" },
+                    // 白淺灘
+                    { time: "14:00", title: "白淺灘文化村", desc: "絕壁上的白色村莊，很多好拍的咖啡廳。", type: "sight", image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?auto=format&fit=crop&w=800&q=80" },
                     { time: "18:00", title: "返回飯店", desc: "晚餐於松島附近享用。", type: "hotel", icon: "fa-bed" }
                 ]
             },
             4: {
-                summary: "Day 4: 天空膠囊列車 (已預訂)。長途移動日。",
+                summary: "Day 4: 藝術與奢華。上午看展，下午搭膠囊列車。",
                 center: [35.1600, 129.1678],
                 zoom: 12,
                 items: [
-                    { time: "14:00", title: "前往尾浦站", desc: "長途計程車 (約45分)，舒適移動。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
-                    // 海雲台海灘 (膠囊列車行經處，最不容易破圖的經典地標)
-                    { time: "15:30", title: "天空膠囊列車", desc: "預約時段 (尾浦出發)。私人車廂。", price: "已預付 NT$849", type: "sight", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Haeundae_Beach_Busan.jpg/640px-Haeundae_Beach_Busan.jpg" },
-                    // 烤鰻魚 (Wikimedia)
-                    { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯。", price: "₩38,000", type: "food", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Jang-eo_gui.jpg/640px-Jang-eo_gui.jpg" }
+                    { time: "10:30", title: "出發前往海雲台", desc: "睡飽再出發，約40分鐘車程。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
+                    // Museum 1 (光影藝術示意圖)
+                    { time: "11:30", title: "Museum 1", desc: "沉浸式媒體藝術，絕美光影打卡點。", price: "₩18,000", type: "sight", image: "https://images.unsplash.com/photo-1510925758641-869d353cecc7?auto=format&fit=crop&w=800&q=80" },
+                    // Rendeja-Vous (海景咖啡示意圖)
+                    { time: "13:30", title: "Rendeja-Vous", desc: "海雲台景觀咖啡廳，稍作休息。", price: "₩15,000", type: "food", image: "https://images.unsplash.com/photo-1533760881669-80db4d7b4c15?auto=format&fit=crop&w=800&q=80" },
+                    // 天空膠囊
+                    { time: "15:30", title: "天空膠囊列車", desc: "預約時段 (尾浦出發)。私人車廂。", price: "已預付 NT$849", type: "sight", image: "https://images.unsplash.com/photo-1700192348509-328670b80f84?auto=format&fit=crop&w=800&q=80" },
+                    // 鰻魚飯
+                    { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯。", price: "₩38,000", type: "food", image: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=800&q=80" }
                 ]
             },
             5: {
@@ -222,8 +228,8 @@
                 zoom: 14,
                 items: [
                     { time: "11:00", title: "退房 & 寄放行李", desc: "享受最後的海景。", type: "hotel", icon: "fa-suitcase" },
-                    // 韓式烤肉 (Wikimedia)
-                    { time: "12:30", title: "松島公園", desc: "頂級牛排骨午間套餐。", price: "₩35,000", type: "food", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Galbi-gui.jpg/640px-Galbi-gui.jpg" },
+                    // 韓式烤肉
+                    { time: "12:30", title: "松島公園", desc: "頂級牛排骨午間套餐。", price: "₩35,000", type: "food", image: "https://images.unsplash.com/photo-1717296062772-277150c26887?auto=format&fit=crop&w=800&q=80" },
                     { time: "16:30", title: "前往機場", desc: "搭乘計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" }
                 ]
             }
@@ -242,11 +248,11 @@
             updateChart();
         }
 
+        // 確保 Naver Map 連結功能存在
         function openNaverMap() {
             if (!currentDayCenter) return;
             const lat = currentDayCenter[0];
             const lng = currentDayCenter[1];
-            // 使用 Naver Map Web URL Scheme
             const naverUrl = `https://map.naver.com/v5/?c=${lng},${lat},15,0,0,0,dh`;
             window.open(naverUrl, '_blank');
         }
@@ -281,7 +287,7 @@
                 const html = `
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden fade-in flex ${isImageCard ? 'flex-col sm:flex-row' : 'flex-row items-center'} gap-3 p-3" style="animation-delay: ${idx * 0.1}s">
                         ${isImageCard ? `<div class="h-32 sm:w-28 sm:h-auto img-container flex-shrink-0 relative overflow-hidden group-img">
-                            <img src="${item.image}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" referrerpolicy="no-referrer">
+                            <img src="${item.image}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" onerror="this.src='${FALLBACK_IMAGE}'; this.onerror=null;">
                         </div>` : 
                         `<div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><i class="fa-solid ${item.icon}"></i></div>`}
                         
@@ -345,7 +351,7 @@
 
         function getExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_expenses_v18')) || [];
+                return JSON.parse(localStorage.getItem('busan_expenses_v20')) || [];
             } catch { return []; }
         }
 
@@ -364,7 +370,7 @@
 
             const expenses = getExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_expenses_v18', JSON.stringify(expenses));
+            localStorage.setItem('busan_expenses_v20', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
@@ -373,7 +379,7 @@
 
         function clearExpenses() {
             if(confirm('確定要清空所有記帳紀錄嗎？')) {
-                localStorage.removeItem('busan_expenses_v18');
+                localStorage.removeItem('busan_expenses_v20');
                 renderExpenses();
                 updateChart();
             }
