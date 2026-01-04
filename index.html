@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V32</title>
+    <title>Phyllis 釜山奢華策展 V33</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -35,32 +35,17 @@
         }
 
         .nav-btn-fixed {
-            position: fixed;
-            bottom: 5rem;
-            right: 1rem;
-            z-index: 9999 !important;
-            animation: pulse-border 2s infinite;
+            position: fixed; bottom: 6rem; right: 1rem; z-index: 999;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
         }
 
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-        }
-
-        .img-container { background-color: #e2e8f0; }
-        
-        .prepaid-item { background-color: #f5f3ff; border-bottom: 1px solid #e0e7ff; }
-        
-        .btn-delete { opacity: 0.4; transition: all 0.2s; cursor: pointer; }
-        .btn-delete:hover { opacity: 1; color: #ef4444; transform: scale(1.1); }
-
-        /* 分類按鈕網格優化 */
         .category-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
         }
+        
+        /* Input 優化 */
+        input[type="number"] { -moz-appearance: textfield; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="bg-gray-50 h-screen flex flex-col text-slate-800 overflow-hidden">
@@ -69,11 +54,11 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V32</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 六大精準分類</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V33</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 雙幣對照版</p>
                 </div>
                 <div class="text-right">
-                    <div class="text-xs text-gray-400">總支出 (TWD)</div>
+                    <div class="text-[10px] text-gray-400 uppercase tracking-wide">Total Estimate</div>
                     <div id="header-total" class="text-lg font-bold text-indigo-600 font-mono">0</div>
                 </div>
             </div>
@@ -84,7 +69,7 @@
                 <i class="fa-solid fa-map-location-dot mr-1"></i> 行程動線
             </button>
             <button onclick="switchMainTab('finance')" id="btn-finance" class="flex-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition-colors">
-                <i class="fa-solid fa-chart-pie mr-1"></i> 記帳管家
+                <i class="fa-solid fa-calculator mr-1"></i> 預算管家
             </button>
         </div>
     </header>
@@ -109,16 +94,14 @@
                 </div>
 
                 <div id="itinerary-list" class="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
-                </div>
+                    </div>
             </div>
 
             <div class="flex-1 relative h-[40%] md:h-full bg-slate-100">
                 <div id="map"></div>
-                
-                <button onclick="openNaverMap()" class="nav-btn-fixed bg-white/95 backdrop-blur px-4 py-3 rounded-full shadow-2xl text-sm font-bold text-slate-700 border border-gray-200 flex items-center gap-2 hover:bg-indigo-50 active:scale-95 transition-transform cursor-pointer">
+                <button onclick="openNaverMap()" class="nav-btn-fixed bg-white/95 backdrop-blur px-4 py-3 rounded-full text-sm font-bold text-slate-700 border border-gray-200 flex items-center gap-2 hover:bg-indigo-50 active:scale-95 transition-transform cursor-pointer">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Naver_Logo.svg/1200px-Naver_Logo.svg.png" class="w-4 h-4 object-contain">
-                    <span class="text-indigo-600">即時導航</span>
-                    <i class="fa-solid fa-location-arrow text-gray-400 text-xs"></i>
+                    <span class="text-indigo-600">導航</span>
                 </button>
             </div>
         </div>
@@ -127,9 +110,16 @@
             <div class="max-w-md mx-auto p-4 space-y-6">
                 
                 <div class="bg-white rounded-2xl shadow-lg p-5 border border-indigo-50">
-                    <h3 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">快速記帳 (KRW)</h3>
+                    <div class="flex justify-between items-end mb-3">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider">快速記帳</h3>
+                        <span class="text-xs text-indigo-400 bg-indigo-50 px-2 py-1 rounded">匯率: 0.022</span>
+                    </div>
+                    
                     <div class="flex gap-2 mb-3">
-                        <input type="number" id="expense-amount" placeholder="輸入韓元金額" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') this.blur()">
+                        <div class="relative flex-1">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₩</span>
+                            <input type="number" id="expense-amount" placeholder="輸入韓元金額" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') this.blur()">
+                        </div>
                     </div>
                     
                     <div class="category-grid mb-3">
@@ -142,16 +132,16 @@
                     </div>
 
                     <button onclick="addExpense()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center">
-                        <i class="fa-solid fa-plus mr-2"></i> 新增消費
+                        <i class="fa-solid fa-plus mr-2"></i> 換算並新增
                     </button>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow p-5">
-                    <h3 class="text-sm font-bold text-gray-500 mb-4 uppercase">消費分佈</h3>
+                    <h3 class="text-sm font-bold text-gray-500 mb-4 uppercase">預算分佈 (TWD)</h3>
                     <div class="relative w-48 h-48 mx-auto">
                         <canvas id="budgetChart"></canvas>
                         <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-                            <span class="text-xs text-gray-400">總計 (TWD)</span>
+                            <span class="text-xs text-gray-400">總計</span>
                             <span id="chart-total" class="text-lg font-bold text-slate-700">0</span>
                         </div>
                     </div>
@@ -159,11 +149,8 @@
 
                 <div class="bg-white rounded-2xl shadow overflow-hidden">
                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="text-sm font-bold text-gray-500">最近紀錄</h3>
-                        <div class="flex gap-2">
-                            <button onclick="resetPrepaid()" class="text-xs text-indigo-400 hover:text-indigo-600">重置預付</button>
-                            <button onclick="clearUserExpenses()" class="text-xs text-red-400 hover:text-red-600">清空記帳</button>
-                        </div>
+                        <h3 class="text-sm font-bold text-gray-500">消費明細</h3>
+                        <button onclick="clearUserExpenses()" class="text-xs text-red-400 hover:text-red-600"><i class="fa-solid fa-trash-can mr-1"></i>清空</button>
                     </div>
                     <div id="expense-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto"></div>
                 </div>
@@ -174,73 +161,71 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const EXCHANGE_RATE = 0.022; 
+        const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Busan+Trip";
+
         let map;
         let activeMarker = null;
         let budgetChart = null;
         let currentType = 'food';
         let currentDayCenter = [35.0788, 129.0180]; 
 
-        const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Image+Loading";
-
-        // V32: 預付項目 (支援 ID 刪除與自動分類)
-        // 類別透過文字邏輯判斷，無需寫死 type，讓顯示更靈活
+        // 預付項目 (單位 TWD)
         const DEFAULT_PREPAID = [
-            { id: 'p1', title: "華航機票來回 (Phyllis)", priceTWD: 8861, note: "已預付" },
-            { id: 'p2', title: "溫德姆飯店 (5天4夜)", priceTWD: Math.round(659813 * EXCHANGE_RATE), note: "₩659,813 (2人)" },
-            { id: 'p3', title: "天空膠囊列車 (1車2人)", priceTWD: 849, note: "已預付" },
-            { id: 'p4', title: "Arte Museum 門票 (2張)", priceTWD: 826, note: "已預付 (KKday)" }
+            { id: 'p1', title: "機票 (已付)", priceTWD: 8861, note: "華航來回" },
+            { id: 'p2', title: "住宿 (已付)", priceTWD: 14516, note: "Wyndham Grand 4晚" },
+            { id: 'p3', title: "膠囊列車 (已付)", priceTWD: 849, note: "Sky Capsule" }
         ];
 
+        // 行程資料 (已手動加上 TWD 換算字串)
         const tripData = {
             1: {
-                summary: "Day 1: 專車直達飯店，享受海鮮自助餐，保留體力。",
+                summary: "Day 1: 專車直達飯店，海鮮自助餐犒賞自己。",
                 center: [35.0788, 129.0180], 
                 zoom: 14,
                 items: [
-                    { time: "16:00", title: "金海機場 (PUS)", desc: "領行李、換匯。直接搭計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" },
-                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景放鬆。", type: "hotel", image: "https://picsum.photos/seed/busan_hotel_night/800/600" },
-                    { time: "19:00", title: "The Bridge", desc: "飯店豪華海鮮自助餐，不用出門。", price: "₩110,000", type: "food", icon: "fa-utensils" }
+                    { time: "16:00", title: "金海機場 (PUS)", desc: "領行李、換匯。", price: "預估 ₩25,000 (≈NT$550)", type: "transport", icon: "fa-plane" },
+                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景。", type: "hotel", image: "https://picsum.photos/seed/busan_hotel_view/800/600" },
+                    { time: "19:00", title: "The Bridge 自助餐", desc: "飯店4F，頂級海鮮吃到飽。", price: "₩110,000 (≈NT$2,420)", type: "food", icon: "fa-utensils" }
                 ]
             },
             2: {
-                summary: "Day 2: 動靜皆宜。上午吹海風、下午避寒看展。",
+                summary: "Day 2: 松島漫步與影島藝文避寒。",
                 center: [35.0900, 129.0400],
                 zoom: 13,
                 items: [
-                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。搭乘水晶車廂俯瞰大海。", price: "₩22,000", type: "sight", image: "https://picsum.photos/seed/cablecar_sea/800/600" },
-                    { time: "13:30", title: "Arte Museum Busan", desc: "移動至影島。躲進沉浸式藝術館，享受室內暖氣。", price: "已預付 NT$826", type: "sight", image: "https://picsum.photos/seed/immersive_art/800/600" },
-                    { time: "16:30", title: "札嘎其 & 南浦洞", desc: "過橋即達南浦洞。晚餐享用海鮮或逛街。", price: "₩30,000", type: "food", image: "https://picsum.photos/seed/seafood_market/800/600" }
+                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。水晶車廂俯瞰大海。", price: "₩22,000 (≈NT$484)", type: "sight", image: "https://picsum.photos/seed/cable_car_ocean/800/600" },
+                    { time: "13:30", title: "Arte Museum", desc: "影島沉浸式藝術展，室內溫暖。", price: "已預付 NT$413", type: "sight", image: "https://picsum.photos/seed/arte_museum/800/600" },
+                    { time: "17:00", title: "札嘎其海鮮市場", desc: "晚餐推薦烤魚或生魚片。", price: "預估 ₩35,000 (≈NT$770)", type: "food", image: "https://picsum.photos/seed/korea_market_food/800/600" }
                 ]
             },
             3: {
-                summary: "Day 3: 慢活文化村。計程車代步，純粹看海喝熱咖啡。",
+                summary: "Day 3: 色彩山城，計程車代步不爬坡。",
                 center: [35.0975, 129.0106],
-                zoom: 13,
+                zoom: 14,
                 items: [
-                    { time: "10:30", title: "甘川洞文化村", desc: "睡飽再出發。計程車直達入口。", price: "車資 ₩7,000", type: "sight", image: "https://picsum.photos/seed/colorful_village/800/600" },
-                    { time: "14:30", title: "白淺灘文化村", desc: "下午轉移至白淺灘。找間溫暖的咖啡廳看海發呆。", type: "sight", image: "https://picsum.photos/seed/white_cliff_sea/800/600" },
-                    { time: "18:00", title: "返回飯店", desc: "早點回飯店休息，享受設施。", type: "hotel", icon: "fa-bed" }
+                    { time: "10:30", title: "甘川洞文化村", desc: "計程車直達「遊客中心」入口。", price: "車資 ₩7,000 (≈NT$154)", type: "sight", image: "https://picsum.photos/seed/gamcheon_village/800/600" },
+                    { time: "14:30", title: "白淺灘文化村", desc: "絕美海景咖啡廳 (Aether Cafe)。", price: "午茶 ₩10,000 (≈NT$220)", type: "sight", image: "https://picsum.photos/seed/white_cliff_cafe/800/600" },
+                    { time: "18:00", title: "返回飯店休息", desc: "享受飯店設施。", type: "hotel", icon: "fa-bed" }
                 ]
             },
             4: {
-                summary: "Day 4: 海雲台奢華日。睡飽再出發，享受東釜山。",
+                summary: "Day 4: 海雲台奢華日，米其林美食。",
                 center: [35.1600, 129.1678],
                 zoom: 12,
                 items: [
-                    { time: "11:00", title: "出發前往海雲台", desc: "長途移動，車上補眠。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
-                    { time: "12:00", title: "Rendeja-Vous", desc: "海雲台無敵海景咖啡，享用早午餐時光。", price: "₩15,000", type: "food", image: "https://picsum.photos/seed/beach_coffee/800/600" },
-                    { time: "15:30", title: "天空膠囊列車", desc: "尾浦站出發。私人車廂，預約日落時段。", price: "已預付 NT$849", type: "sight", image: "https://picsum.photos/seed/train_ocean_view/800/600" },
-                    { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯，完美句點。", price: "₩38,000", type: "food", image: "https://picsum.photos/seed/tasty_dinner_grill/800/600" }
+                    { time: "11:00", title: "移動至海雲台", desc: "計程車約50分鐘，車上補眠。", price: "車資 ₩25,000 (≈NT$550)", type: "transport", icon: "fa-taxi" },
+                    { time: "15:30", title: "天空膠囊列車", desc: "尾浦站出發，私人車廂看日落。", price: "已預付 NT$425", type: "sight", image: "https://picsum.photos/seed/sky_capsule_train/800/600" },
+                    { time: "17:30", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯。", price: "₩38,000 (≈NT$836)", type: "food", image: "https://picsum.photos/seed/eel_rice_bowl/800/600" }
                 ]
             },
             5: {
-                summary: "Day 5: 睡飽退房，最後的韓式烤肉午餐。",
+                summary: "Day 5: 最後的韓牛，優雅賦歸。",
                 center: [35.0760, 129.0170],
                 zoom: 14,
                 items: [
-                    { time: "11:00", title: "退房 & 寄放行李", desc: "享受最後的海景。", type: "hotel", icon: "fa-suitcase" },
-                    { time: "12:30", title: "松島公園", desc: "頂級牛排骨午間套餐。", price: "₩35,000", type: "food", image: "https://picsum.photos/seed/korean_bbq_meat/800/600" },
-                    { time: "16:30", title: "前往機場", desc: "搭乘計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" }
+                    { time: "11:00", title: "退房 & 寄行李", desc: "飯店周邊散步。", type: "hotel", icon: "fa-suitcase" },
+                    { time: "12:30", title: "松島公園 (餐廳)", desc: "午餐：高級調味牛排骨。", price: "₩45,000 (≈NT$990)", type: "food", image: "https://picsum.photos/seed/korean_beef_bbq/800/600" },
+                    { time: "16:30", title: "前往機場", desc: "搭乘計程車。", price: "預估 ₩25,000 (≈NT$550)", type: "transport", icon: "fa-plane" }
                 ]
             }
         };
@@ -260,13 +245,14 @@
             if (!currentDayCenter) return;
             const lat = currentDayCenter[0];
             const lng = currentDayCenter[1];
-            const naverUrl = `https://map.naver.com/v5/?c=${lng},${lat},15,0,0,0,dh`;
-            window.open(naverUrl, '_blank');
+            // Naver Map Web Link format
+            window.open(`https://map.naver.com/v5/?c=${lng},${lat},15,0,0,0,dh`, '_blank');
         }
 
         function updateDay(day) {
             currentDayCenter = tripData[day].center;
-
+            
+            // Update UI Buttons
             document.querySelectorAll('.day-btn').forEach(b => {
                 b.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
                 b.classList.add('text-gray-600', 'hover:bg-gray-100');
@@ -275,10 +261,11 @@
             activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
             activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
 
+            // Update Text
             document.getElementById('day-summary').innerText = tripData[day].summary;
 
-            map.flyTo(tripData[day].center, tripData[day].zoom, { duration: 1.5 });
-            
+            // Map Logic
+            map.flyTo(tripData[day].center, tripData[day].zoom, { duration: 1.2 });
             if(activeMarker) map.removeLayer(activeMarker);
             const icon = L.divIcon({
                 className: 'custom-div-icon',
@@ -287,23 +274,24 @@
             });
             activeMarker = L.marker(tripData[day].center, {icon: icon}).addTo(map);
 
+            // List Logic
             const list = document.getElementById('itinerary-list');
             list.innerHTML = '';
             tripData[day].items.forEach((item, idx) => {
                 const isImageCard = !!item.image;
                 const html = `
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden fade-in flex ${isImageCard ? 'flex-col sm:flex-row' : 'flex-row items-center'} gap-3 p-3" style="animation-delay: ${idx * 0.1}s">
-                        ${isImageCard ? `<div class="h-32 sm:w-28 sm:h-auto img-container flex-shrink-0 relative overflow-hidden group-img">
-                            <img src="${item.image}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" onerror="this.src='${FALLBACK_IMAGE}'; this.onerror=null;">
+                        ${isImageCard ? `<div class="h-32 sm:w-28 sm:h-auto bg-gray-200 flex-shrink-0 relative overflow-hidden group-img">
+                            <img src="${item.image}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" onerror="this.src='${FALLBACK_IMAGE}'">
                         </div>` : 
                         `<div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><i class="fa-solid ${item.icon}"></i></div>`}
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start">
                                 <span class="text-xs font-bold text-indigo-500">${item.time}</span>
-                                ${item.price ? `<span class="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-600">${item.price}</span>` : ''}
+                                ${item.price ? `<span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100">${item.price}</span>` : ''}
                             </div>
-                            <h3 class="font-bold text-gray-800 truncate">${item.title}</h3>
+                            <h3 class="font-bold text-gray-800 truncate mt-1">${item.title}</h3>
                             <p class="text-xs text-gray-500 line-clamp-2 mt-1">${item.desc}</p>
                         </div>
                     </div>
@@ -321,7 +309,7 @@
             if (tab === 'itinerary') {
                 itineraryEl.classList.remove('-translate-x-full');
                 financeEl.classList.add('translate-x-full');
-                financeEl.classList.remove('inset-0'); 
+                financeEl.classList.remove('inset-0');
                 
                 btnItinerary.classList.add('text-indigo-600', 'border-indigo-600', 'bg-indigo-50/50');
                 btnItinerary.classList.remove('text-gray-500', 'border-transparent');
@@ -339,10 +327,11 @@
                 btnItinerary.classList.remove('text-indigo-600', 'border-indigo-600', 'bg-indigo-50/50');
                 btnItinerary.classList.add('text-gray-500', 'border-transparent');
                 
-                updateChart(); 
+                updateChart();
             }
         }
 
+        // --- Finance Logic ---
         function setExpenseType(type) {
             currentType = type;
             document.querySelectorAll('.type-btn').forEach(btn => {
@@ -356,38 +345,9 @@
             });
         }
 
-        // --- 預付記帳管理 ---
-        function getPrepaidExpenses() {
-            try {
-                const stored = localStorage.getItem('busan_prepaid_v32');
-                if (!stored) {
-                    localStorage.setItem('busan_prepaid_v32', JSON.stringify(DEFAULT_PREPAID));
-                    return DEFAULT_PREPAID;
-                }
-                return JSON.parse(stored);
-            } catch { return DEFAULT_PREPAID; }
-        }
-
-        function deletePrepaid(id) {
-            if(!confirm('確定要刪除這筆預付項目嗎？(刪除後可手動新增正確金額)')) return;
-            let list = getPrepaidExpenses();
-            list = list.filter(item => item.id !== id);
-            localStorage.setItem('busan_prepaid_v32', JSON.stringify(list));
-            renderExpenses();
-            updateChart();
-        }
-
-        function resetPrepaid() {
-            if(!confirm('確定要將預付項目恢復為預設值嗎？')) return;
-            localStorage.setItem('busan_prepaid_v32', JSON.stringify(DEFAULT_PREPAID));
-            renderExpenses();
-            updateChart();
-        }
-
-        // --- 使用者記帳管理 ---
         function getUserExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_user_expenses_v32')) || [];
+                return JSON.parse(localStorage.getItem('busan_user_expenses_v33')) || [];
             } catch { return []; }
         }
 
@@ -406,120 +366,94 @@
 
             const expenses = getUserExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_user_expenses_v32', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v33', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
             updateChart();
         }
 
-        function deleteUserExpense(id) {
-            if(!confirm('確定刪除此筆新增的消費紀錄？')) return;
-            let expenses = getUserExpenses();
-            expenses = expenses.filter(ex => ex.id !== id);
-            localStorage.setItem('busan_user_expenses_v32', JSON.stringify(expenses));
-            renderExpenses();
-            updateChart();
-        }
-
         function clearUserExpenses() {
-            if(!confirm('確定要清空所有自行輸入的記帳紀錄嗎？(預付項目不會被刪除)')) return;
-            localStorage.removeItem('busan_user_expenses_v32');
+            if(!confirm('確定要清空記帳紀錄嗎？(預付項目將保留)')) return;
+            localStorage.removeItem('busan_user_expenses_v33');
             renderExpenses();
             updateChart();
         }
 
         function renderExpenses() {
             const list = document.getElementById('expense-list');
-            const prepaidList = getPrepaidExpenses();
             const userList = getUserExpenses();
             let totalTWD = 0;
 
-            const prepaidHtml = prepaidList.map(item => {
+            // Prepaid
+            const prepaidHtml = DEFAULT_PREPAID.map(item => {
                 totalTWD += item.priceTWD;
                 return `
-                    <div class="px-4 py-3 flex justify-between items-center prepaid-item group">
+                    <div class="px-4 py-3 flex justify-between items-center bg-indigo-50/50 border-b border-indigo-100 last:border-0">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm">
-                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xs">
+                                <i class="fa-solid fa-check"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-gray-800">${item.title}</div>
-                                <div class="text-xs text-indigo-600 font-medium">${item.note}</div>
+                                <div class="font-bold text-gray-800 text-sm">${item.title}</div>
+                                <div class="text-xs text-indigo-500">${item.note}</div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <div class="font-bold text-indigo-600">NT$${item.priceTWD.toLocaleString()}</div>
-                            </div>
-                            <button onclick="deletePrepaid('${item.id}')" class="btn-delete text-gray-400 p-2" title="刪除此筆預付">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
+                        <div class="font-bold text-indigo-600 text-sm">NT$${item.priceTWD.toLocaleString()}</div>
                     </div>
                 `;
             }).join('');
 
+            // User Added
             const userHtml = userList.map(ex => {
                 totalTWD += ex.amountTWD;
-                let iconClass = 'fa-circle-question';
-                let colorClass = 'text-gray-500';
-                
-                if(ex.type === 'food') { iconClass = 'fa-utensils'; colorClass = 'text-orange-500'; }
-                if(ex.type === 'transport') { iconClass = 'fa-taxi'; colorClass = 'text-blue-500'; }
-                if(ex.type === 'shopping') { iconClass = 'fa-bag-shopping'; colorClass = 'text-pink-500'; }
-                if(ex.type === 'hotel') { iconClass = 'fa-bed'; colorClass = 'text-indigo-500'; }
-                if(ex.type === 'ticket') { iconClass = 'fa-ticket'; colorClass = 'text-teal-500'; } // 新增門票圖示
+                let icon = 'fa-circle';
+                if(ex.type === 'food') icon = 'fa-utensils';
+                if(ex.type === 'transport') icon = 'fa-taxi';
+                if(ex.type === 'shopping') icon = 'fa-bag-shopping';
                 
                 return `
-                    <div class="px-4 py-3 flex justify-between items-center group border-b border-gray-50 last:border-0">
+                    <div class="px-4 py-3 flex justify-between items-center group border-b border-gray-50 last:border-0 hover:bg-gray-50">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center ${colorClass} text-sm">
-                                <i class="fa-solid ${iconClass}"></i>
+                            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs">
+                                <i class="fa-solid ${icon}"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-gray-800">₩${ex.amountKRW.toLocaleString()}</div>
-                                <div class="text-xs text-gray-400">${ex.date}</div>
+                                <div class="font-bold text-gray-800 text-sm">₩${ex.amountKRW.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400">≈ NT$${ex.amountTWD.toLocaleString()}</div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <div class="font-bold text-indigo-600">NT$${ex.amountTWD.toLocaleString()}</div>
-                            </div>
-                            <button onclick="deleteUserExpense(${ex.id})" class="btn-delete text-gray-400 p-2" title="刪除此筆紀錄">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                        <div class="text-right">
+                             <div class="font-bold text-gray-700 text-sm">NT$${ex.amountTWD.toLocaleString()}</div>
                         </div>
                     </div>
                 `;
             }).join('');
 
             list.innerHTML = prepaidHtml + userHtml;
-
-            document.getElementById('header-total').innerText = totalTWD.toLocaleString();
-            document.getElementById('chart-total').innerText = "NT$" + totalTWD.toLocaleString();
+            document.getElementById('header-total').innerText = "NT$" + totalTWD.toLocaleString();
+            document.getElementById('chart-total').innerText = totalTWD.toLocaleString();
         }
 
         function updateChart() {
             const ctx = document.getElementById('budgetChart').getContext('2d');
-            const prepaidList = getPrepaidExpenses();
             const userList = getUserExpenses();
             
-            // 完整分類統計
-            let dataMap = { 'food': 0, 'transport': 0, 'shopping': 0, 'hotel': 0, 'ticket': 0, 'other': 0 }; 
-
-            // 預付項目自動分類邏輯
-            prepaidList.forEach(p => {
-                const t = p.title;
-                if(t.includes("機票") || t.includes("列車") || t.includes("Taxi")) dataMap['transport'] += p.priceTWD;
-                else if(t.includes("飯店") || t.includes("住宿")) dataMap['hotel'] += p.priceTWD;
-                else if(t.includes("門票") || t.includes("Museum") || t.includes("Pass")) dataMap['ticket'] += p.priceTWD;
-                else dataMap['other'] += p.priceTWD;
-            });
+            // Init with Prepaid
+            let dataMap = { 'food': 0, 'transport': 0, 'shopping': 0, 'hotel': 0, 'ticket': 0, 'other': 0 };
             
+            // Map Prepaid
+            DEFAULT_PREPAID.forEach(p => {
+                if(p.title.includes("住宿")) dataMap.hotel += p.priceTWD;
+                else if(p.title.includes("機票") || p.title.includes("交通")) dataMap.transport += p.priceTWD;
+                else if(p.title.includes("列車") || p.title.includes("門票")) dataMap.ticket += p.priceTWD;
+                else dataMap.other += p.priceTWD;
+            });
+
+            // Map User
             userList.forEach(ex => {
                 if (dataMap[ex.type] !== undefined) dataMap[ex.type] += ex.amountTWD;
-                else dataMap['other'] += ex.amountTWD;
+                else dataMap.other += ex.amountTWD;
             });
 
             const dataValues = [dataMap.food, dataMap.transport, dataMap.shopping, dataMap.hotel, dataMap.ticket, dataMap.other];
@@ -532,7 +466,6 @@
                     labels: ['餐飲', '交通', '購物', '住宿', '門票', '其他'],
                     datasets: [{
                         data: dataValues,
-                        // 對應顏色：橘、藍、粉、紫靛、青綠、灰
                         backgroundColor: ['#f97316', '#3b82f6', '#ec4899', '#6366f1', '#14b8a6', '#64748b'],
                         borderWidth: 0,
                         hoverOffset: 4
@@ -540,16 +473,14 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     cutout: '75%',
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
 
         document.addEventListener('DOMContentLoaded', init);
-
     </script>
 </body>
 </html>
