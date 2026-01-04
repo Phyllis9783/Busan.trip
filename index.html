@@ -2,417 +2,436 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>釜山溫德姆奢華舒壓之旅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phyllis 釜山奢華策展 V13</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         
+        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* 隱藏滾動條但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 動畫效果 */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* Leaflet 地圖樣式 */
         #map { height: 100%; width: 100%; z-index: 1; background: #e5e7eb; }
-        .img-container { overflow: hidden; background-color: #f3f4f6; }
-        .img-container img { transition: transform 0.6s ease; }
-        .group:hover .img-container img { transform: scale(1.1); }
-        
-        /* Mobile Map Fix */
-        .mobile-map-active #mobile-map-container { display: block !important; position: absolute; inset: 0; z-index: 40; }
-        .mobile-map-active #itinerary-panel { display: none; }
-        
-        .nav-active { color: #4f46e5; }
-        .modal-bg { background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .marker-pin {
+            width: 30px; height: 30px; border-radius: 50% 50% 50% 0;
+            background: #4f46e5; position: absolute; transform: rotate(-45deg);
+            left: 50%; top: 50%; margin: -15px 0 0 -15px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        .marker-pin::after {
+            content: ''; width: 14px; height: 14px; margin: 8px 0 0 8px;
+            background: #fff; position: absolute; border-radius: 50%;
+        }
+
+        /* IOS Input 優化 */
+        input, select, textarea { font-size: 16px; } 
     </style>
 </head>
-<body class="bg-slate-50 h-[100dvh] flex flex-col overflow-hidden text-slate-800">
+<body class="bg-gray-50 h-screen flex flex-col text-slate-800 overflow-hidden">
 
-    <header id="main-header" class="bg-white shadow-sm z-30 flex-none relative">
-        <div class="max-w-7xl mx-auto px-4 py-3">
-            <div class="flex items-center justify-between mb-2">
+    <header class="bg-white/95 backdrop-blur-md shadow-sm z-30 flex-none border-b border-gray-200">
+        <div class="px-4 py-3">
+            <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-lg md:text-xl font-bold text-slate-900 truncate">釜山奢華之旅 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded ml-1 align-middle">Phyllis</span></h1>
-                    <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-hotel text-indigo-600 mr-1"></i> 松島 Wyndham Grand</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V13</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 匯率 0.022</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-gray-400">總支出 (TWD)</div>
+                    <div id="header-total" class="text-lg font-bold text-indigo-600 font-mono">0</div>
                 </div>
             </div>
         </div>
-        <div class="border-t border-gray-200">
-            <div class="max-w-7xl mx-auto px-4">
-                <nav class="flex space-x-3 overflow-x-auto pb-1" aria-label="Tabs">
-                    <button onclick="switchDay(1)" id="tab-1" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600 transition-colors">Day 1</button>
-                    <button onclick="switchDay(2)" id="tab-2" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 2</button>
-                    <button onclick="switchDay(3)" id="tab-3" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 3</button>
-                    <button onclick="switchDay(4)" id="tab-4" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 4</button>
-                    <button onclick="switchDay(5)" id="tab-5" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors">Day 5</button>
-                </nav>
-            </div>
+        
+        <div class="flex border-t border-gray-100">
+            <button onclick="switchMainTab('itinerary')" id="btn-itinerary" class="flex-1 py-3 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors bg-indigo-50/50">
+                <i class="fa-solid fa-map-location-dot mr-1"></i> 行程動線
+            </button>
+            <button onclick="switchMainTab('finance')" id="btn-finance" class="flex-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition-colors">
+                <i class="fa-solid fa-chart-pie mr-1"></i> 財務管家
+            </button>
         </div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden relative w-full mb-16">
+    <main class="flex-1 relative overflow-hidden">
         
-        <div id="view-itinerary" class="flex w-full h-full">
-            <div id="itinerary-panel" class="w-full md:w-[480px] lg:w-[550px] overflow-y-auto bg-slate-50 p-4 pb-24 z-10 shadow-xl flex-none scroll-smooth">
-                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r-lg shadow-sm">
-                    <p class="text-sm text-indigo-900 font-medium leading-relaxed" id="day-summary">載入中...</p>
+        <div id="tab-itinerary" class="h-full flex flex-col md:flex-row absolute inset-0 transition-transform duration-300">
+            
+            <div class="w-full md:w-[450px] flex flex-col bg-gray-50 z-20 shadow-xl md:border-r border-gray-200 h-[60%] md:h-full">
+                <div class="flex space-x-4 overflow-x-auto no-scrollbar p-3 bg-white border-b border-gray-200 shadow-sm flex-none">
+                    <button onclick="updateDay(1)" class="day-btn active-day flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-bold bg-indigo-600 text-white transition-all" data-day="1">D1 抵達</button>
+                    <button onclick="updateDay(2)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="2">D2 松島</button>
+                    <button onclick="updateDay(3)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="3">D3 文化</button>
+                    <button onclick="updateDay(4)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="4">D4 膠囊</button>
+                    <button onclick="updateDay(5)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="5">D5 賦歸</button>
                 </div>
-                <div id="itinerary-content" class="space-y-4"></div>
-                <div class="h-12"></div>
+
+                <div class="bg-indigo-50 px-4 py-3 border-b border-indigo-100 flex-none">
+                    <p id="day-summary" class="text-xs text-indigo-800 font-medium leading-relaxed">
+                        抵達釜山，專車接送至飯店，享受舒適的開始。
+                    </p>
+                </div>
+
+                <div id="itinerary-list" class="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+                    </div>
             </div>
-            
-            <div id="mobile-map-container" class="hidden md:block flex-1 relative bg-gray-200">
+
+            <div class="flex-1 relative h-[40%] md:h-full bg-slate-100">
                 <div id="map"></div>
+                <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-lg text-xs font-bold text-slate-600 z-[400] border border-gray-200">
+                    <i class="fa-solid fa-location-arrow text-indigo-500 mr-1"></i> 即時導航
+                </div>
             </div>
-            
-            <button onclick="toggleMobileMap()" id="map-toggle-btn" class="md:hidden absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full shadow-2xl z-20 flex items-center justify-center hover:bg-indigo-700 transition active:scale-95">
-                <i class="fa-solid fa-map-location-dot text-xl"></i>
-            </button>
         </div>
 
-        <div id="view-budget" class="hidden w-full h-full overflow-y-auto bg-slate-50 p-4 pb-24 scroll-smooth">
-            <div class="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden mb-6">
-                <div class="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500 rounded-full opacity-50 blur-2xl"></div>
-                <div class="relative z-10">
-                    <p class="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">目前累積花費 (Total Spent)</p>
-                    <h2 class="text-4xl font-black tracking-tight">NT$ <span id="dash-spent-total">0</span></h2>
-                    <div class="mt-4 border-t border-indigo-500/30 pt-3 flex justify-between items-center">
-                        <p class="text-[10px] text-indigo-200 uppercase">今日匯率參考</p>
-                        <p class="text-xs font-medium opacity-80">1 KRW ≈ 0.024 TWD</p>
+        <div id="tab-finance" class="h-full w-full absolute inset-0 translate-x-full transition-transform duration-300 bg-gray-50 overflow-y-auto pb-20">
+            <div class="max-w-md mx-auto p-4 space-y-6">
+                
+                <div class="bg-white rounded-2xl shadow-lg p-5 border border-indigo-50">
+                    <h3 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">快速記帳 (KRW)</h3>
+                    <div class="flex gap-2 mb-3">
+                        <input type="number" id="expense-amount" placeholder="輸入韓元金額" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') this.blur()">
+                    </div>
+                    <div class="grid grid-cols-4 gap-2 mb-3">
+                        <button onclick="setExpenseType('food')" class="type-btn active p-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-600 text-xs font-bold flex flex-col items-center gap-1" data-type="food"><i class="fa-solid fa-utensils"></i> 餐飲</button>
+                        <button onclick="setExpenseType('transport')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="transport"><i class="fa-solid fa-taxi"></i> 交通</button>
+                        <button onclick="setExpenseType('shopping')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="shopping"><i class="fa-solid fa-bag-shopping"></i> 購物</button>
+                        <button onclick="setExpenseType('other')" class="type-btn p-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-bold flex flex-col items-center gap-1" data-type="other"><i class="fa-solid fa-ticket"></i> 其他</button>
+                    </div>
+                    <button onclick="addExpense()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center">
+                        <i class="fa-solid fa-plus mr-2"></i> 記錄這筆消費
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow p-5">
+                    <h3 class="text-sm font-bold text-gray-500 mb-4 uppercase">消費分佈</h3>
+                    <div class="relative w-48 h-48 mx-auto">
+                        <canvas id="budgetChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                            <span class="text-xs text-gray-400">總計 (TWD)</span>
+                            <span id="chart-total" class="text-lg font-bold text-slate-700">0</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <button onclick="openExpenseModal()" class="w-full bg-white border-2 border-dashed border-indigo-200 text-indigo-600 font-bold py-4 rounded-xl mb-6 hover:bg-indigo-50 transition active:scale-[0.98]">
-                <i class="fa-solid fa-plus-circle mr-2"></i> 新增一筆消費
-            </button>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 min-h-[250px]">
-                <h3 class="font-bold text-slate-800 mb-4 text-sm border-l-4 border-indigo-500 pl-2">消費分佈 (TWD)</h3>
-                <div class="h-48 w-full flex justify-center relative">
-                    <canvas id="budgetChart"></canvas>
+                <div class="bg-white rounded-2xl shadow overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-gray-500">最近紀錄</h3>
+                        <button onclick="clearExpenses()" class="text-xs text-red-400 hover:text-red-600">清空</button>
+                    </div>
+                    <div id="expense-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto">
+                        </div>
                 </div>
-            </div>
 
-            <div>
-                <div class="flex justify-between items-center mb-3 px-1">
-                    <h3 class="font-bold text-slate-800 text-sm">支出紀錄</h3>
-                    <button onclick="clearExpenses()" class="text-xs text-red-400"><i class="fa-solid fa-trash-can mr-1"></i> 重置</button>
-                </div>
-                <div id="expense-list" class="space-y-3 pb-12"></div>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 h-16 flex justify-around items-center text-[10px] font-bold text-slate-400 z-50 pb-safe-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <button onclick="switchMainView('itinerary')" id="nav-itinerary" class="nav-item nav-active w-full h-full flex flex-col items-center justify-center gap-1">
-            <i class="fa-solid fa-list-check text-xl mb-0.5"></i> 行程
-        </button>
-        <button onclick="switchMainView('budget')" id="nav-budget" class="nav-item w-full h-full flex flex-col items-center justify-center gap-1">
-            <i class="fa-solid fa-wallet text-xl mb-0.5"></i> 財務
-        </button>
-    </nav>
-
-    <div id="modal-expense" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 modal-bg transition-opacity" onclick="closeExpenseModal()"></div>
-        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 shadow-2xl transform transition-transform duration-300 translate-y-full" id="modal-panel">
-            <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
-            <h3 class="text-center font-bold text-lg text-slate-800 mb-2">新增消費 (韓元)</h3>
-            <p class="text-center text-xs text-slate-400 mb-6">系統將自動換算為台幣</p>
-            <form onsubmit="addExpense(event)" class="space-y-5">
-                <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xl">₩</span>
-                    <input type="number" id="input-cost" inputmode="numeric" required placeholder="0" class="w-full bg-slate-50 border-none rounded-2xl py-4 pl-10 pr-4 text-center text-3xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div class="text-center text-sm font-bold text-emerald-600">≈ NT$ <span id="preview-twd">0</span></div>
-                <input type="text" id="input-name" required placeholder="項目名稱 (如: 午餐)" class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-base outline-none">
-                <div class="grid grid-cols-3 gap-3">
-                    <button type="button" onclick="setCat('food', this)" class="cat-btn bg-indigo-50 border-indigo-500 border ring-2 ring-indigo-200 p-3 rounded-xl flex flex-col items-center gap-1"><i class="fa-solid fa-utensils text-orange-500"></i><span class="text-xs">美食</span></button>
-                    <button type="button" onclick="setCat('transport', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-taxi text-blue-500"></i><span class="text-xs">交通</span></button>
-                    <button type="button" onclick="setCat('shopping', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-bag-shopping text-pink-500"></i><span class="text-xs">購物</span></button>
-                    <button type="button" onclick="setCat('ticket', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-ticket text-purple-500"></i><span class="text-xs">門票</span></button>
-                    <button type="button" onclick="setCat('stay', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-bed text-indigo-500"></i><span class="text-xs">住宿</span></button>
-                    <button type="button" onclick="setCat('other', this)" class="cat-btn p-3 rounded-xl border border-slate-100 flex flex-col items-center gap-1"><i class="fa-solid fa-ellipsis text-gray-500"></i><span class="text-xs">其他</span></button>
-                </div>
-                <input type="hidden" id="input-cat" value="food">
-                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl text-lg shadow-lg active:scale-[0.98] transition">儲存</button>
-            </form>
-            <div class="h-6"></div>
-        </div>
-    </div>
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
-        const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80";
-        const EXCHANGE_RATE = 0.024;
-        function krwToTwd(krw) { return Math.round(krw * EXCHANGE_RATE); }
+        // --- 設定與資料 ---
+        const EXCHANGE_RATE = 0.022; // Phyllis 指定匯率
+        let map;
+        let activeMarker = null;
+        let budgetChart = null;
+        let currentType = 'food';
 
+        // 行程資料庫
         const tripData = {
-            1: { summary: "抵達釜山，直奔松島溫德姆。", center: [35.1000, 128.9800], zoom: 11, items: [
-                { time: "16:00", title: "金海機場", desc: "換匯與領行李。", type: "transport", image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-                { time: "17:00", title: "Taxi ➔ 飯店", desc: "舒適接送。", price: "₩25,000", type: "car", icon: "fa-car" },
-                { time: "晚餐", title: "The Bridge", desc: "飯店海鮮自助。", price: "₩110,000", type: "food", image: "https://images.unsplash.com/photo-1529312266912-b33cf6227e2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
-            ]},
-            2: { summary: "松島海景與南浦洞逛街。", center: [35.0850, 129.0250], zoom: 13, items: [
-                { time: "10:00", title: "松島纜車", desc: "水晶車廂。", price: "₩22,000", type: "sight", image: "https://images.unsplash.com/photo-1595246140625-573b715e56d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-                { time: "12:30", title: "Taxi ➔ 南浦", desc: "短程移動。", price: "₩7,000", type: "car", icon: "fa-taxi" },
-                { time: "午餐", title: "札嘎其烤魚", desc: "在地海鮮。", price: "₩35,000", type: "food", image: "https://images.unsplash.com/photo-1627993389028-2f87a82f349c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
-            ]},
-            3: { summary: "甘川洞文化村與太宗臺。", center: [35.0900, 129.0300], zoom: 13, items: [
-                { time: "移動", title: "Taxi ➔ 甘川洞", desc: "直達入口。", price: "₩6,500", type: "car", icon: "fa-taxi" },
-                { time: "10:00", title: "甘川文化村", desc: "小王子。", type: "sight", image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-                { time: "晚餐", title: "錦繡河豚湯", desc: "米其林推薦。", price: "₩30,000", type: "food", icon: "fa-utensils" }
-            ]},
-            4: { summary: "海雲臺膠囊列車。", center: [35.1500, 129.1300], zoom: 12, items: [
-                { time: "移動", title: "Taxi ➔ 海雲臺", desc: "長途舒適。", price: "₩28,000", type: "car", icon: "fa-taxi" },
-                { time: "11:00", title: "天空膠囊列車", desc: "需預約。", price: "₩35,000", type: "sight", image: "https://images.unsplash.com/photo-1685933069352-094115e58864?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-                { time: "午餐", title: "海木鰻魚飯", desc: "必吃排隊店。", price: "₩39,000", type: "food", image: "https://images.unsplash.com/photo-1580442151529-343f2f6e0e27?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
-            ]},
-            5: { summary: "最後的奢華與賦歸。", center: [35.0760, 129.0170], zoom: 14, items: [
-                { time: "12:00", title: "松島公園", desc: "烤牛排骨。", price: "₩45,000", type: "food", image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
-                { time: "16:30", title: "Taxi ➔ 機場", desc: "前往機場。", price: "₩25,000", type: "transport", image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }
-            ]}
+            1: {
+                summary: "Day 1: 專車直達飯店，享受海鮮自助餐，保留體力。",
+                center: [35.0788, 129.0180], 
+                zoom: 14,
+                items: [
+                    { time: "16:00", title: "金海機場 (PUS)", desc: "領行李、換匯。直接搭計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" },
+                    { time: "17:30", title: "Wyndham Grand", desc: "Check-in，全客房海景放鬆。", type: "hotel", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" },
+                    { time: "19:00", title: "The Bridge", desc: "飯店豪華海鮮自助餐，不用出門。", price: "₩110,000", type: "food", icon: "fa-utensils" }
+                ]
+            },
+            2: {
+                summary: "Day 2: 上午松島高空纜車，下午南浦洞逛街。",
+                center: [35.0850, 129.0250],
+                zoom: 13,
+                items: [
+                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。推薦搭乘水晶車廂。", price: "₩22,000", type: "sight", image: "https://images.unsplash.com/photo-1534234828569-16d22b0f4496?w=600" },
+                    { time: "12:00", title: "EL16.52 Cafe", desc: "絕美海景咖啡廳，稍作休息。", price: "₩10,000", type: "food", icon: "fa-mug-hot" },
+                    { time: "13:30", title: "移動至南浦洞", desc: "計程車前往，省時省力。", price: "約 ₩8,000", type: "transport", icon: "fa-taxi" },
+                    { time: "14:00", title: "札嘎其市場", desc: "體驗釜山海鮮文化。", price: "₩30,000", type: "food", image: "https://images.unsplash.com/photo-1580910547703-9d06b3a32f01?w=600" }
+                ]
+            },
+            3: {
+                summary: "Day 3: 山城文化巡禮。策略：計程車直達高點。",
+                center: [35.0975, 129.0106],
+                zoom: 13,
+                items: [
+                    { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://images.unsplash.com/photo-1596417770176-d39b03ae2803?w=600" },
+                    { time: "14:00", title: "白淺灘文化村", desc: "絕壁上的白色村莊，很多好拍的咖啡廳。", type: "sight", image: "https://images.unsplash.com/photo-1516053351989-d4c398332155?w=600" },
+                    { time: "18:00", title: "返回飯店", desc: "晚餐於松島附近享用。", type: "hotel", icon: "fa-bed" }
+                ]
+            },
+            4: {
+                summary: "Day 4: 天空膠囊列車 (已預訂)。長途移動日。",
+                center: [35.1600, 129.1678],
+                zoom: 12,
+                items: [
+                    { time: "14:00", title: "前往尾浦站", desc: "長途計程車 (約45分)，舒適移動。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
+                    { time: "15:30", title: "天空膠囊列車", desc: "預約時段 (尾浦出發)。私人車廂。", price: "已預付 NT$849", type: "sight", image: "https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=600" },
+                    { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯。", price: "₩38,000", type: "food", image: "https://images.unsplash.com/photo-1560159752-d6d7c4b0d355?w=600" }
+                ]
+            },
+            5: {
+                summary: "Day 5: 睡飽退房，最後的韓式烤肉午餐。",
+                center: [35.0760, 129.0170],
+                zoom: 14,
+                items: [
+                    { time: "11:00", title: "退房 & 寄放行李", desc: "享受最後的海景。", type: "hotel", icon: "fa-suitcase" },
+                    { time: "12:30", title: "松島公園", desc: "頂級牛排骨午間套餐。", price: "₩35,000", type: "food", image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600" },
+                    { time: "16:30", title: "前往機場", desc: "搭乘計程車。", price: "預估 ₩25,000", type: "transport", icon: "fa-plane" }
+                ]
+            }
         };
 
-        let map;
-        let expenses = [];
-        try { expenses = JSON.parse(localStorage.getItem('busan_v12_final')) || []; } catch(e) { console.warn("Storage issue"); }
-        let budgetChart = null;
-        let currentDay = 1;
+        // --- 邏輯功能 ---
+        
+        function init() {
+            // 初始化地圖
+            map = L.map('map', { zoomControl: false }).setView(tripData[1].center, tripData[1].zoom);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: 'OpenStreetMap'
+            }).addTo(map);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            switchDay(1);
-            // V12: 移除初始 initChart，改為切換時延遲載入，解決手機隱藏元素無法渲染問題
+            // 預設載入 Day 1
+            updateDay(1);
+            
+            // 載入記帳資料
             renderExpenses();
-            updateBudgetUI();
-            
-            document.getElementById('input-cost').addEventListener('input', function(e) {
-                const val = parseInt(e.target.value) || 0;
-                document.getElementById('preview-twd').innerText = krwToTwd(val).toLocaleString();
+            updateChart();
+        }
+
+        // 切換天數
+        function updateDay(day) {
+            // UI 更新
+            document.querySelectorAll('.day-btn').forEach(b => {
+                b.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+                b.classList.add('text-gray-600', 'hover:bg-gray-100');
             });
-        });
+            const activeBtn = document.querySelector(`.day-btn[data-day="${day}"]`);
+            activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
 
-        // 核心導航切換
-        function switchMainView(view) {
-            // 關閉地圖
-            document.body.classList.remove('mobile-map-active');
-            const btnIcon = document.querySelector('#map-toggle-btn i');
-            if(btnIcon) {
-                btnIcon.classList.remove('fa-list-ul');
-                btnIcon.classList.add('fa-map-location-dot');
-            }
+            document.getElementById('day-summary').innerText = tripData[day].summary;
 
-            const views = ['itinerary', 'budget'];
-            const header = document.getElementById('main-header');
+            // 地圖飛越
+            map.flyTo(tripData[day].center, tripData[day].zoom, { duration: 1.5 });
             
-            views.forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                const nav = document.getElementById(`nav-${v}`);
-                if (v === view) {
-                    el.classList.remove('hidden');
-                    nav.classList.add('nav-active', 'text-indigo-600');
-                    nav.classList.remove('text-slate-400');
+            // 清除舊標記 (僅保留當天中心點作為示範)
+            if(activeMarker) map.removeLayer(activeMarker);
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div class='marker-pin'></div>",
+                iconSize: [30, 42], iconAnchor: [15, 42]
+            });
+            activeMarker = L.marker(tripData[day].center, {icon: icon}).addTo(map);
+
+            // 渲染列表
+            const list = document.getElementById('itinerary-list');
+            list.innerHTML = '';
+            tripData[day].items.forEach((item, idx) => {
+                const isImageCard = !!item.image;
+                const html = `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden fade-in flex ${isImageCard ? 'flex-col sm:flex-row' : 'flex-row items-center'} gap-3 p-3" style="animation-delay: ${idx * 0.1}s">
+                        ${isImageCard ? `<div class="h-32 sm:w-28 sm:h-auto bg-gray-200 flex-shrink-0 relative"><img src="${item.image}" class="absolute inset-0 w-full h-full object-cover"></div>` : 
+                        `<div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0 text-indigo-500"><i class="fa-solid ${item.icon}"></i></div>`}
+                        
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs font-bold text-indigo-500">${item.time}</span>
+                                ${item.price ? `<span class="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-600">${item.price}</span>` : ''}
+                            </div>
+                            <h3 class="font-bold text-gray-800 truncate">${item.title}</h3>
+                            <p class="text-xs text-gray-500 line-clamp-2 mt-1">${item.desc}</p>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // 切換主分頁
+        function switchMainTab(tab) {
+            const itineraryEl = document.getElementById('tab-itinerary');
+            const financeEl = document.getElementById('tab-finance');
+            const btnItinerary = document.getElementById('btn-itinerary');
+            const btnFinance = document.getElementById('btn-finance');
+
+            if (tab === 'itinerary') {
+                itineraryEl.classList.remove('-translate-x-full');
+                financeEl.classList.add('translate-x-full');
+                financeEl.classList.remove('inset-0'); // 防止覆蓋
+                
+                btnItinerary.classList.add('text-indigo-600', 'border-indigo-600', 'bg-indigo-50/50');
+                btnItinerary.classList.remove('text-gray-500', 'border-transparent');
+                btnFinance.classList.remove('text-indigo-600', 'border-indigo-600', 'bg-indigo-50/50');
+                btnFinance.classList.add('text-gray-500', 'border-transparent');
+                
+                // 修正地圖尺寸
+                setTimeout(() => map.invalidateSize(), 300);
+            } else {
+                itineraryEl.classList.add('-translate-x-full');
+                financeEl.classList.remove('translate-x-full');
+                financeEl.classList.add('inset-0');
+
+                btnFinance.classList.add('text-indigo-600', 'border-indigo-600', 'bg-indigo-50/50');
+                btnFinance.classList.remove('text-gray-500', 'border-transparent');
+                btnItinerary.classList.remove('text-indigo-600', 'border-indigo-600', 'bg-indigo-50/50');
+                btnItinerary.classList.add('text-gray-500', 'border-transparent');
+                
+                updateChart(); // 重繪圖表
+            }
+        }
+
+        // --- 財務功能 ---
+
+        function setExpenseType(type) {
+            currentType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                if(btn.dataset.type === type) {
+                    btn.classList.add('bg-indigo-50', 'border-indigo-200', 'text-indigo-600');
+                    btn.classList.remove('border-slate-200', 'text-slate-500');
                 } else {
-                    el.classList.add('hidden');
-                    nav.classList.remove('nav-active', 'text-indigo-600');
-                    nav.classList.add('text-slate-400');
+                    btn.classList.remove('bg-indigo-50', 'border-indigo-200', 'text-indigo-600', 'bg-orange-50', 'text-orange-600');
+                    btn.classList.add('border-slate-200', 'text-slate-500');
                 }
             });
-
-            if (view === 'itinerary') {
-                header.classList.remove('hidden');
-                if (map) setTimeout(() => map.invalidateSize(), 100);
-            } else {
-                header.classList.add('hidden');
-                // V12: 切換到財務頁時才繪製圖表，解決手機空白問題
-                setTimeout(() => {
-                    initChart();
-                    updateChartData();
-                }, 100);
-            }
         }
 
-        function parsePrice(priceStr) {
-            if(!priceStr) return 0;
-            return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
-        }
-
-        function initMap() {
+        function getExpenses() {
             try {
-                map = L.map('map', { zoomControl: false }).setView([35.1000, 129.0300], 12);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '', maxZoom: 19 }).addTo(map);
-            } catch (e) { console.log("Map Error"); }
+                return JSON.parse(localStorage.getItem('busan_expenses_v13')) || [];
+            } catch { return []; }
         }
 
-        function switchDay(day) {
-            currentDay = day;
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-indigo-500', 'text-indigo-600');
-                btn.classList.add('border-transparent', 'text-gray-500');
-            });
-            document.getElementById(`tab-${day}`).classList.replace('border-transparent', 'border-indigo-500');
-            document.getElementById(`tab-${day}`).classList.replace('text-gray-500', 'text-indigo-600');
-            document.getElementById('day-summary').textContent = tripData[day].summary;
+        function addExpense() {
+            const amountKRW = parseFloat(document.getElementById('expense-amount').value);
+            if (!amountKRW) return;
 
-            const container = document.getElementById('itinerary-content');
-            container.innerHTML = ''; 
+            const amountTWD = Math.round(amountKRW * EXCHANGE_RATE);
+            const expense = {
+                id: Date.now(),
+                amountKRW: amountKRW,
+                amountTWD: amountTWD,
+                type: currentType,
+                date: new Date().toLocaleDateString()
+            };
 
-            tripData[day].items.forEach((item) => {
-                let priceHtml = '';
-                if (item.price) {
-                    const kVal = parsePrice(item.price);
-                    const tVal = krwToTwd(kVal);
-                    priceHtml = `
-                        <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-indigo-600 font-bold text-sm">${item.price}</span>
-                            <span class="text-xs text-slate-400">≈ NT$${tVal}</span>
-                        </div>`;
-                }
+            const expenses = getExpenses();
+            expenses.unshift(expense);
+            localStorage.setItem('busan_expenses_v13', JSON.stringify(expenses));
 
-                let cardHtml = '';
-                if (item.type === 'car' || (item.type === 'transport' && !item.image) || (item.type === 'food' && !item.image)) {
-                    cardHtml = `
-                        <div class="bg-white rounded-xl p-4 shadow-md flex items-start gap-3 fade-in border-l-4 border-slate-600">
-                            <div class="flex-shrink-0 mt-1"><i class="fa-solid ${item.icon || 'fa-car'} text-lg text-slate-600"></i></div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-bold text-base text-slate-800">${item.title}</h3>
-                                </div>
-                                <p class="text-gray-600 text-sm mt-1">${item.desc}</p>
-                                ${priceHtml}
-                            </div>
-                        </div>`;
-                } else {
-                    cardHtml = `
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in border border-gray-100 flex h-32 md:h-auto group">
-                            <div class="w-32 md:w-32 h-full relative flex-shrink-0 img-container">
-                                <img src="${item.image || FALLBACK_IMAGE}" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGE}'">
-                            </div>
-                            <div class="p-3 flex-1 flex flex-col justify-center min-w-0">
-                                <div class="text-xs font-bold text-gray-400 mb-1">${item.time}</div>
-                                <h3 class="font-bold text-base text-slate-800 mb-1 truncate">${item.title}</h3>
-                                <p class="text-gray-600 text-xs md:text-sm line-clamp-2">${item.desc}</p>
-                                ${priceHtml}
-                            </div>
-                        </div>`;
-                }
-                container.insertAdjacentHTML('beforeend', cardHtml);
-            });
-            
-            if (map && tripData[day].center) {
-                map.flyTo(tripData[day].center, tripData[day].zoom, { animate: true, duration: 1.5 });
-            }
+            document.getElementById('expense-amount').value = '';
+            renderExpenses();
+            updateChart();
         }
 
-        function toggleMobileMap() {
-            document.body.classList.toggle('mobile-map-active');
-            const btnIcon = document.querySelector('#map-toggle-btn i');
-            if (document.body.classList.contains('mobile-map-active')) {
-                btnIcon.classList.replace('fa-map-location-dot', 'fa-list-ul');
-                setTimeout(() => {
-                    map.invalidateSize();
-                    if(tripData[currentDay]) map.flyTo(tripData[currentDay].center, tripData[currentDay].zoom);
-                }, 100);
-            } else {
-                btnIcon.classList.replace('fa-list-ul', 'fa-map-location-dot');
-            }
-        }
-
-        // V12: 優化的圖表初始化邏輯
-        function initChart() {
-            const ctx = document.getElementById('budgetChart');
-            if (!ctx) return;
-            if (budgetChart) return; // 避免重複建立
-
-            budgetChart = new Chart(ctx.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['美食', '交通', '購物', '門票', '住宿', '其他'],
-                    datasets: [{ data: [0,0,0,0,0,0], backgroundColor: ['#f97316', '#3b82f6', '#ec4899', '#a855f7', '#6366f1', '#94a3b8'], borderWidth: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }
-            });
-        }
-
-        function updateChartData() {
-            if (!budgetChart) return;
-            const cats = { food:0, transport:0, shopping:0, ticket:0, stay:0, other:0 };
-            expenses.forEach(e => { if(cats[e.cat] !== undefined) cats[e.cat] += e.costTWD; else cats.other += e.costTWD; });
-            budgetChart.data.datasets[0].data = Object.values(cats);
-            budgetChart.update();
-        }
-
-        function openExpenseModal() { document.getElementById('modal-expense').classList.remove('hidden'); setTimeout(() => document.getElementById('modal-panel').classList.remove('translate-y-full'), 10); }
-        function closeExpenseModal() { document.getElementById('modal-panel').classList.add('translate-y-full'); setTimeout(() => document.getElementById('modal-expense').classList.add('hidden'), 300); }
-        function setCat(cat, btn) {
-            document.getElementById('input-cat').value = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200'));
-            btn.classList.add('bg-indigo-50', 'border-indigo-500', 'ring-2', 'ring-indigo-200');
-        }
-
-        function addExpense(e) {
-            e.preventDefault();
-            const costKRW = parseInt(document.getElementById('input-cost').value);
-            const name = document.getElementById('input-name').value;
-            const cat = document.getElementById('input-cat').value;
-            
-            if (costKRW && name) {
-                const costTWD = krwToTwd(costKRW);
-                expenses.push({ id: Date.now(), name, costKRW, costTWD, cat });
-                try { localStorage.setItem('busan_v12_final', JSON.stringify(expenses)); } catch(e){}
-                
+        function clearExpenses() {
+            if(confirm('確定要清空所有記帳紀錄嗎？')) {
+                localStorage.removeItem('busan_expenses_v13');
                 renderExpenses();
-                updateBudgetUI();
-                
-                // V12 關鍵修正：UI 流程
-                closeExpenseModal();
-                document.activeElement.blur(); // 強制收起鍵盤
-                document.getElementById('input-cost').value = '';
-                document.getElementById('input-name').value = '';
-                document.getElementById('preview-twd').innerText = '0';
-                
-                // 強制跳轉回財務列表頁面並更新
-                switchMainView('budget');
+                updateChart();
             }
         }
 
         function renderExpenses() {
             const list = document.getElementById('expense-list');
-            list.innerHTML = '';
-            if (expenses.length === 0) { list.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">尚無消費紀錄</div>'; return; }
-            expenses.slice().reverse().forEach(ex => {
-                const row = `
-                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm fade-in">
+            const expenses = getExpenses();
+            let totalTWD = 0;
+
+            list.innerHTML = expenses.map(ex => {
+                totalTWD += ex.amountTWD;
+                let iconClass = 'fa-circle-question';
+                let colorClass = 'text-gray-500';
+                
+                if(ex.type === 'food') { iconClass = 'fa-utensils'; colorClass = 'text-orange-500'; }
+                if(ex.type === 'transport') { iconClass = 'fa-taxi'; colorClass = 'text-blue-500'; }
+                if(ex.type === 'shopping') { iconClass = 'fa-bag-shopping'; colorClass = 'text-pink-500'; }
+                
+                return `
+                    <div class="px-4 py-3 flex justify-between items-center group">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 text-xs">${getIcon(ex.cat)}</div>
+                            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center ${colorClass} text-sm">
+                                <i class="fa-solid ${iconClass}"></i>
+                            </div>
                             <div>
-                                <p class="font-bold text-slate-800 text-sm">${ex.name}</p>
-                                <p class="text-[10px] text-slate-400">₩${ex.costKRW.toLocaleString()}</p>
+                                <div class="font-bold text-gray-800">₩${ex.amountKRW.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400">${ex.date}</div>
                             </div>
                         </div>
-                        <div class="font-bold text-indigo-600 text-sm">NT$${ex.costTWD.toLocaleString()}</div>
-                    </div>`;
-                list.insertAdjacentHTML('beforeend', row);
+                        <div class="text-right">
+                            <div class="font-bold text-indigo-600">NT$${ex.amountTWD.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 更新總金額
+            // 加上預付的 Sky Capsule NT$849
+            const grandTotal = totalTWD + 849;
+            document.getElementById('header-total').innerText = grandTotal.toLocaleString();
+            document.getElementById('chart-total').innerText = "NT$" + grandTotal.toLocaleString();
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            const expenses = getExpenses();
+            
+            // 分類統計
+            const dataMap = { 'food': 0, 'transport': 0, 'shopping': 0, 'other': 849 }; // 預設 849 為預付門票(other)
+            expenses.forEach(ex => {
+                if (dataMap[ex.type] !== undefined) dataMap[ex.type] += ex.amountTWD;
+                else dataMap['other'] += ex.amountTWD;
+            });
+
+            const dataValues = [dataMap.food, dataMap.transport, dataMap.shopping, dataMap.other];
+
+            if (budgetChart) budgetChart.destroy();
+
+            budgetChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['餐飲', '交通', '購物', '其他(含預付)'],
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: ['#f97316', '#3b82f6', '#ec4899', '#64748b'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
             });
         }
 
-        function updateBudgetUI() {
-            const spentTWD = expenses.reduce((acc, curr) => acc + curr.costTWD, 0);
-            document.getElementById('dash-spent-total').innerText = spentTWD.toLocaleString();
-            updateChartData(); // 確保數字與圖表同步
-        }
+        // 啟動
+        document.addEventListener('DOMContentLoaded', init);
 
-        function clearExpenses() { 
-            if(confirm('確定清除所有紀錄？')) { 
-                expenses = []; 
-                try { localStorage.setItem('busan_v12_final', JSON.stringify(expenses)); } catch(e){}
-                renderExpenses(); updateBudgetUI(); 
-            } 
-        }
-        function getIcon(cat) { const map = { food: '<i class="fa-solid fa-utensils"></i>', transport: '<i class="fa-solid fa-taxi"></i>', shopping: '<i class="fa-solid fa-bag-shopping"></i>', ticket: '<i class="fa-solid fa-ticket"></i>', stay: '<i class="fa-solid fa-bed"></i>', other: '<i class="fa-solid fa-circle"></i>' }; return map[cat] || map.other; }
     </script>
 </body>
 </html>
