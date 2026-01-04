@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V24</title>
+    <title>Phyllis 釜山奢華策展 V25</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,10 +34,10 @@
             background: #fff; position: absolute; border-radius: 50%;
         }
 
-        /* 導航按鈕：強制置頂 + 中文優化 */
+        /* 導航按鈕：強制置頂 */
         .nav-btn-fixed {
             position: fixed;
-            bottom: 5rem; /* 避開手機底部安全區 */
+            bottom: 5rem; 
             right: 1rem;
             z-index: 9999 !important;
             animation: pulse-border 2s infinite;
@@ -58,8 +58,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V24</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 定稿版</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V25</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓行 • 精力最佳化</p>
                 </div>
                 <div class="text-right">
                     <div class="text-xs text-gray-400">總支出 (TWD)</div>
@@ -85,9 +85,9 @@
             <div class="w-full md:w-[450px] flex flex-col bg-gray-50 z-20 shadow-xl md:border-r border-gray-200 h-[60%] md:h-full">
                 <div class="flex space-x-4 overflow-x-auto no-scrollbar p-3 bg-white border-b border-gray-200 shadow-sm flex-none">
                     <button onclick="updateDay(1)" class="day-btn active-day flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-bold bg-indigo-600 text-white transition-all" data-day="1">D1 抵達</button>
-                    <button onclick="updateDay(2)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="2">D2 松島</button>
-                    <button onclick="updateDay(3)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="3">D3 影島</button>
-                    <button onclick="updateDay(4)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="4">D4 海雲台</button>
+                    <button onclick="updateDay(2)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="2">D2 藝文</button>
+                    <button onclick="updateDay(3)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="3">D3 漫遊</button>
+                    <button onclick="updateDay(4)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="4">D4 奢華</button>
                     <button onclick="updateDay(5)" class="day-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all" data-day="5">D5 賦歸</button>
                 </div>
 
@@ -162,10 +162,9 @@
         let currentType = 'food';
         let currentDayCenter = [35.0788, 129.0180]; 
 
-        // 穩定圖源
         const FALLBACK_IMAGE = "https://placehold.co/800x600/e0e7ff/4f46e5?text=Image+Loading";
 
-        // V24 定稿資料
+        // V25 行程數據：Arte Museum 移至 Day 2，Day 3 減壓
         const tripData = {
             1: {
                 summary: "Day 1: 專車直達飯店，享受海鮮自助餐，保留體力。",
@@ -178,28 +177,28 @@
                 ]
             },
             2: {
-                summary: "Day 2: 上午松島高空纜車，下午南浦洞逛街。",
-                center: [35.0850, 129.0250],
+                summary: "Day 2: 動靜皆宜。上午纜車、下午看展、晚上逛街。",
+                center: [35.0900, 129.0400], // 重心移動到影島/松島周邊
                 zoom: 13,
                 items: [
-                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。推薦搭乘水晶車廂。", price: "₩22,000", type: "sight", image: "https://picsum.photos/seed/cablecar_sea/800/600" },
-                    { time: "12:00", title: "EL16.52 Cafe", desc: "絕美海景咖啡廳，稍作休息。", price: "₩10,000", type: "food", icon: "fa-mug-hot" },
-                    { time: "13:30", title: "移動至南浦洞", desc: "計程車前往，省時省力。", price: "約 ₩8,000", type: "transport", icon: "fa-taxi" },
-                    { time: "14:00", title: "札嘎其市場", desc: "體驗釜山海鮮文化。", price: "₩30,000", type: "food", image: "https://picsum.photos/seed/seafood_market/800/600" }
+                    // AM: 松島纜車 (戶外)
+                    { time: "10:30", title: "松島海上纜車", desc: "步行即達。搭乘水晶車廂俯瞰大海。", price: "₩22,000", type: "sight", image: "https://picsum.photos/seed/cablecar_sea/800/600" },
+                    // PM: Arte Museum (室內/影島) - 從Day 3 移來，中場休息
+                    { time: "13:30", title: "Arte Museum Busan", desc: "移動至影島。沉浸式藝術，吹冷氣讓腳休息。", price: "₩17,000", type: "sight", image: "https://picsum.photos/seed/immersive_art/800/600" },
+                    // Night: 南浦洞 (逛街/晚餐)
+                    { time: "16:30", title: "札嘎其 & 南浦洞", desc: "過橋即達南浦洞。晚餐享用海鮮或逛街。", price: "₩30,000", type: "food", image: "https://picsum.photos/seed/seafood_market/800/600" }
                 ]
             },
             3: {
-                summary: "Day 3: 影島藝術與自然。甘川洞 -> 沉浸式藝術 -> 白淺灘。",
-                center: [35.0900, 129.0400], 
+                summary: "Day 3: 慢活文化村。計程車代步，純粹看海喝咖啡。",
+                center: [35.0975, 129.0106],
                 zoom: 13,
                 items: [
                     // AM: 甘川洞
-                    { time: "10:00", title: "甘川洞文化村", desc: "計程車直達入口。尋找小王子。", price: "車資 ₩7,000", type: "sight", image: "https://picsum.photos/seed/colorful_village/800/600" },
-                    // Noon: Arte Museum (確認為影島之沉浸式藝術)
-                    { time: "13:00", title: "Arte Museum Busan", desc: "影島最新！震撼沉浸式光影藝術，讓雙腳休息。", price: "₩17,000", type: "sight", image: "https://picsum.photos/seed/immersive_art/800/600" },
-                    // PM: 白淺灘
-                    { time: "15:30", title: "白淺灘文化村", desc: "移動至附近的白淺灘，絕美海濱步道與咖啡。", type: "sight", image: "https://picsum.photos/seed/white_cliff_sea/800/600" },
-                    { time: "18:00", title: "返回飯店", desc: "晚餐於松島附近享用。", type: "hotel", icon: "fa-bed" }
+                    { time: "10:30", title: "甘川洞文化村", desc: "睡飽再出發。計程車直達入口。", price: "車資 ₩7,000", type: "sight", image: "https://picsum.photos/seed/colorful_village/800/600" },
+                    // PM: 白淺灘 (純粹放鬆)
+                    { time: "14:30", title: "白淺灘文化村", desc: "下午轉移至白淺灘。找間咖啡廳看海發呆。", type: "sight", image: "https://picsum.photos/seed/white_cliff_sea/800/600" },
+                    { time: "18:00", title: "返回飯店", desc: "早點回飯店休息，享受設施。", type: "hotel", icon: "fa-bed" }
                 ]
             },
             4: {
@@ -207,12 +206,9 @@
                 center: [35.1600, 129.1678],
                 zoom: 12,
                 items: [
-                    { time: "11:00", title: "出發前往海雲台", desc: "睡飽再出發，約50分鐘車程，放鬆心情。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
-                    // 景觀咖啡
+                    { time: "11:00", title: "出發前往海雲台", desc: "長途移動，車上補眠。", price: "約 ₩25,000", type: "transport", icon: "fa-taxi" },
                     { time: "12:00", title: "Rendeja-Vous", desc: "海雲台無敵海景咖啡，享用早午餐時光。", price: "₩15,000", type: "food", image: "https://picsum.photos/seed/beach_coffee/800/600" },
-                    // 膠囊列車
                     { time: "15:30", title: "天空膠囊列車", desc: "尾浦站出發。私人車廂，預約日落時段。", price: "已預付 NT$849", type: "sight", image: "https://picsum.photos/seed/train_ocean_view/800/600" },
-                    // 鰻魚飯
                     { time: "17:00", title: "海木 (Haemok)", desc: "米其林推薦鰻魚飯，完美句點。", price: "₩38,000", type: "food", image: "https://picsum.photos/seed/grilled_eel_food/800/600" }
                 ]
             },
@@ -341,7 +337,7 @@
 
         function getExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_expenses_v24')) || [];
+                return JSON.parse(localStorage.getItem('busan_expenses_v25')) || [];
             } catch { return []; }
         }
 
@@ -360,7 +356,7 @@
 
             const expenses = getExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_expenses_v24', JSON.stringify(expenses));
+            localStorage.setItem('busan_expenses_v25', JSON.stringify(expenses));
 
             document.getElementById('expense-amount').value = '';
             renderExpenses();
@@ -369,7 +365,7 @@
 
         function clearExpenses() {
             if(confirm('確定要清空所有記帳紀錄嗎？')) {
-                localStorage.removeItem('busan_expenses_v24');
+                localStorage.removeItem('busan_expenses_v25');
                 renderExpenses();
                 updateChart();
             }
