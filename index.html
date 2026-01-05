@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Phyllis 釜山奢華策展 V39</title>
+    <title>Phyllis 釜山奢華策展 V40</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,8 +56,8 @@
         <div class="px-4 py-3">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V39</span></h1>
-                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 樂天光復版</p>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">Busan Escape <span class="text-indigo-600 text-sm align-top">V40</span></h1>
+                    <p class="text-xs text-slate-500 font-medium">1/5 - 1/9 奢華舒壓 • 記帳備註版</p>
                 </div>
                 <div class="text-right">
                     <div class="text-[10px] text-gray-400 uppercase tracking-wide">Total Estimate</div>
@@ -118,10 +118,15 @@
                         <span class="text-xs text-indigo-400 bg-indigo-50 px-2 py-1 rounded">匯率: 0.022</span>
                     </div>
                     
-                    <div class="flex gap-2 mb-3">
-                        <div class="relative flex-1">
+                    <div class="space-y-3 mb-4">
+                        <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₩</span>
-                            <input type="number" id="expense-amount" placeholder="輸入韓元金額" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') this.blur()">
+                            <input type="number" id="expense-amount" placeholder="輸入韓元金額" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        </div>
+                        
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-pen"></i></span>
+                            <input type="text" id="expense-note" placeholder="項目說明 (如: 晚餐、伴手禮)" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') addExpense()">
                         </div>
                     </div>
                     
@@ -347,9 +352,9 @@
 
         function getPrepaidExpenses() {
             try {
-                const stored = localStorage.getItem('busan_prepaid_v39'); // Updated storage key for V39
+                const stored = localStorage.getItem('busan_prepaid_v40'); 
                 if (!stored) {
-                    localStorage.setItem('busan_prepaid_v39', JSON.stringify(DEFAULT_PREPAID));
+                    localStorage.setItem('busan_prepaid_v40', JSON.stringify(DEFAULT_PREPAID));
                     return DEFAULT_PREPAID;
                 }
                 return JSON.parse(stored);
@@ -360,26 +365,29 @@
             if(!confirm('確定要刪除這筆預付項目嗎？')) return;
             let list = getPrepaidExpenses();
             list = list.filter(item => item.id !== id);
-            localStorage.setItem('busan_prepaid_v39', JSON.stringify(list));
+            localStorage.setItem('busan_prepaid_v40', JSON.stringify(list));
             renderExpenses();
             updateChart();
         }
 
         function resetPrepaid() {
             if(!confirm('確定要將預付項目恢復為預設值嗎？')) return;
-            localStorage.setItem('busan_prepaid_v39', JSON.stringify(DEFAULT_PREPAID));
+            localStorage.setItem('busan_prepaid_v40', JSON.stringify(DEFAULT_PREPAID));
             renderExpenses();
             updateChart();
         }
 
         function getUserExpenses() {
             try {
-                return JSON.parse(localStorage.getItem('busan_user_expenses_v39')) || []; // Updated storage key
+                return JSON.parse(localStorage.getItem('busan_user_expenses_v40')) || []; 
             } catch { return []; }
         }
 
+        // V40 核心：支援備註
         function addExpense() {
             const amountKRW = parseFloat(document.getElementById('expense-amount').value);
+            const noteText = document.getElementById('expense-note').value.trim();
+            
             if (!amountKRW) return;
 
             const amountTWD = Math.round(amountKRW * EXCHANGE_RATE);
@@ -388,14 +396,18 @@
                 amountKRW: amountKRW,
                 amountTWD: amountTWD,
                 type: currentType,
+                note: noteText, // 存入備註
                 date: new Date().toLocaleDateString()
             };
 
             const expenses = getUserExpenses();
             expenses.unshift(expense);
-            localStorage.setItem('busan_user_expenses_v39', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v40', JSON.stringify(expenses));
 
+            // 清空輸入框
             document.getElementById('expense-amount').value = '';
+            document.getElementById('expense-note').value = '';
+            
             renderExpenses();
             updateChart();
         }
@@ -404,26 +416,26 @@
             if(!confirm('確定刪除此筆新增的消費紀錄？')) return;
             let expenses = getUserExpenses();
             expenses = expenses.filter(ex => ex.id !== id);
-            localStorage.setItem('busan_user_expenses_v39', JSON.stringify(expenses));
+            localStorage.setItem('busan_user_expenses_v40', JSON.stringify(expenses));
             renderExpenses();
             updateChart();
         }
 
         function clearUserExpenses() {
             if(!confirm('確定要清空記帳紀錄嗎？')) return;
-            localStorage.removeItem('busan_user_expenses_v39');
+            localStorage.removeItem('busan_user_expenses_v40');
             renderExpenses();
             updateChart();
         }
 
         function getCategoryStyle(type) {
             switch(type) {
-                case 'transport': return { icon: 'fa-plane', color: 'text-blue-500', bg: 'bg-blue-100' };
-                case 'hotel': return { icon: 'fa-bed', color: 'text-indigo-500', bg: 'bg-indigo-100' };
-                case 'ticket': return { icon: 'fa-ticket', color: 'text-teal-500', bg: 'bg-teal-100' };
-                case 'food': return { icon: 'fa-utensils', color: 'text-orange-500', bg: 'bg-orange-100' };
-                case 'shopping': return { icon: 'fa-bag-shopping', color: 'text-pink-500', bg: 'bg-pink-100' };
-                default: return { icon: 'fa-circle-check', color: 'text-gray-500', bg: 'bg-gray-100' };
+                case 'transport': return { icon: 'fa-plane', color: 'text-blue-500', bg: 'bg-blue-100', name: '交通' };
+                case 'hotel': return { icon: 'fa-bed', color: 'text-indigo-500', bg: 'bg-indigo-100', name: '住宿' };
+                case 'ticket': return { icon: 'fa-ticket', color: 'text-teal-500', bg: 'bg-teal-100', name: '門票' };
+                case 'food': return { icon: 'fa-utensils', color: 'text-orange-500', bg: 'bg-orange-100', name: '餐飲' };
+                case 'shopping': return { icon: 'fa-bag-shopping', color: 'text-pink-500', bg: 'bg-pink-100', name: '購物' };
+                default: return { icon: 'fa-circle-check', color: 'text-gray-500', bg: 'bg-gray-100', name: '其他' };
             }
         }
 
@@ -466,6 +478,11 @@
                 
                 const style = getCategoryStyle(ex.type);
                 
+                // V40 智慧顯示邏輯：
+                // 如果有備註，標題顯示備註，副標顯示金額。
+                // 如果沒備註，標題顯示類別名稱(如:餐飲)，副標顯示金額。
+                const displayTitle = ex.note ? ex.note : style.name; 
+                
                 return `
                     <div class="px-4 py-3 flex justify-between items-center group border-b border-gray-50 last:border-0 hover:bg-gray-50">
                         <div class="flex items-center gap-3">
@@ -473,8 +490,8 @@
                                 <i class="fa-solid ${style.icon}"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-gray-800 text-sm">₩${ex.amountKRW.toLocaleString()}</div>
-                                <div class="text-xs text-gray-400">≈ NT$${ex.amountTWD.toLocaleString()}</div>
+                                <div class="font-bold text-gray-800 text-sm">${displayTitle}</div>
+                                <div class="text-xs text-gray-400">₩${ex.amountKRW.toLocaleString()}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
